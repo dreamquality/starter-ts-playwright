@@ -46,10 +46,12 @@ const config: PlaywrightTestConfig = {
     actionTimeout: 0,
 
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'https://charlyautomatiza.github.io/task-management-frontend',
+    baseURL: 'https://playwright.dev',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    headless: !!process.env.CI,
+    video: 'on',
   },
 
   /* Configure projects for major browsers */

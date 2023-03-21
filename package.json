@@ -4,16 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "clean": "rimraf allure-results && rimraf allure-report && rimraf test-results && rimraf playwright-report && rimraf junit-results && rimraf lighthouse",
-    "api-example": "npx playwright test tests/api.example.spec.ts --project=chromium",
-    "data-mgmt": "npx playwright test tests/dataAPIExample.spec.ts --project=chromium",
-    "api-ui": "npm run clean && npx playwright test tests/api.ui.spec.ts --project=chromium",
+    "clean": "rimraf allure-results && rimraf allure-report && rimraf test-results && rimraf playwright-report && rimraf junit-results",
     "play-report": "npx playwright show-report",
     "allure-report": "allure generate ./allure-results --clean",
     "open-report": "npm run allure-report && allure open ./allure-report",
     "firefox": "npm run clean && npx playwright test --project=firefox",
     "chromium": "npx playwright test --project=chromium",
-    "a11y": "npm run clean && npx playwright test tests/lighthouse.spec.ts --project=chromium",
     "webkit": "npx playwright test --project=webkit",
     "test": "npm run clean && npx playwright test --project=chromium",
     "test-head": "npm run clean && npx playwright test --headed",
@@ -30,23 +26,15 @@
     "allure report",
     "web test automation"
   ],
-  "author": "CharlyAutomatiza",
+  "author": "DreamReal",
   "license": "CC0",
-  "bugs": {
-    "url": "https://github.com/charlyautomatiza/starter-playwright/issues"
-  },
-  "homepage": "https://github.com/charlyautomatiza/starter-playwright#readme",
   "devDependencies": {
     "@playwright/test": "^1.30.0",
     "allure-commandline": "^2.20.1",
     "allure-playwright": "^2.0.0-beta.24",
-    "lighthouse": "^9.6.8",
-    "playwright": "^1.30.0",
-    "playwright-lighthouse": "^2.2.2",
-    "typescript": "^4.9.4"
+    "playwright": "^1.30.0"
   },
   "dependencies": {
-    "@faker-js/faker": "^7.4.0",
     "dotenv": "^16.0.3",
     "rimraf": "^4.1.2"
   }
