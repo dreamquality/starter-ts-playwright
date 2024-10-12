@@ -1,0 +1,4 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Sat Oct 12 11:52:53 GMT 2024","Sat Oct 12 11:52:56 GMT 2024","2981","firefox","test-search.spec.ts","","","","Testing search on playwright documentation page",""
+"passed","Sat Oct 12 11:52:56 GMT 2024","Sat Oct 12 11:53:03 GMT 2024","6949","webkit","test-search.spec.ts","","","","Testing search on playwright documentation page",""
+"passed","Sat Oct 12 11:52:50 GMT 2024","Sat Oct 12 11:52:52 GMT 2024","1939","chromium","test-search.spec.ts","","","","Testing search on playwright documentation page",""
