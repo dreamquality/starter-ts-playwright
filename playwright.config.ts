@@ -62,6 +62,7 @@ const config: PlaywrightTestConfig = {
       /* Project-specific settings. */
       use: {
         ...devices['Desktop Chrome'],
+        channel: 'chrome',
       },
     },
 
