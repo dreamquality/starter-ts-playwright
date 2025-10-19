@@ -46,7 +46,12 @@ const config: PlaywrightTestConfig = {
     actionTimeout: 0,
 
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'https://playwright.dev',
+    baseURL: process.env.BASE_URL || 'https://playwright.dev',
+
+    /* API testing configuration */
+    extraHTTPHeaders: {
+      'Accept': 'application/json',
+    },
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
