@@ -259,7 +259,7 @@ test.describe('Advanced API Testing Examples', () => {
 test.describe('Advanced Mocking Scenarios', () => {
   
   test('Mock different responses for different endpoints', async ({ page }) => {
-    const mockUsers = MockHelper.loadMockData('users.json');
+    const mockUsers = MockHelper.loadMockData('users.json') as any[];
     const mockPosts = MockHelper.loadMockData('posts.json');
     
     // Mock multiple endpoints

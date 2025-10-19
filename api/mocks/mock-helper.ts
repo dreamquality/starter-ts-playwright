@@ -23,7 +23,7 @@ export class MockHelper {
   static async mockPageRoute(
     page: Page,
     urlPattern: string | RegExp,
-    responseData: any,
+    responseData: unknown,
     status: number = 200,
     headers?: Record<string, string>
   ): Promise<void> {

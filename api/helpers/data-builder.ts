@@ -4,7 +4,7 @@
  */
 
 export class UserBuilder {
-  private user: Record<string, any> = {};
+  private user: any = {};
 
   withId(id: number): this {
     this.user.id = id;
@@ -56,13 +56,13 @@ export class UserBuilder {
     return this;
   }
 
-  build(): Record<string, any> {
+  build(): any {
     return { ...this.user };
   }
 }
 
 export class PostBuilder {
-  private post: Record<string, any> = {};
+  private post: any = {};
 
   withId(id: number): this {
     this.post.id = id;
@@ -84,13 +84,13 @@ export class PostBuilder {
     return this;
   }
 
-  build(): Record<string, any> {
+  build(): any {
     return { ...this.post };
   }
 }
 
 export class CommentBuilder {
-  private comment: Record<string, any> = {};
+  private comment: any = {};
 
   withId(id: number): this {
     this.comment.id = id;
@@ -117,7 +117,7 @@ export class CommentBuilder {
     return this;
   }
 
-  build(): Record<string, any> {
+  build(): any {
     return { ...this.comment };
   }
 }
