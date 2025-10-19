@@ -1,6 +1,9 @@
 /**
  * Data Builder Pattern
  * Provides fluent interface for building test data
+ * 
+ * Note: Using 'any' type intentionally for flexibility in test data creation.
+ * Builders allow partial object construction and the tests determine which fields are required.
  */
 
 export class UserBuilder {

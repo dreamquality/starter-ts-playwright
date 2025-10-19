@@ -46,7 +46,7 @@ export class MockHelper {
   static async mockContextRoute(
     context: BrowserContext,
     urlPattern: string | RegExp,
-    responseData: any,
+    responseData: unknown,
     status: number = 200,
     headers?: Record<string, string>
   ): Promise<void> {
@@ -102,7 +102,7 @@ export class MockHelper {
   static async mockDelayedResponse(
     page: Page,
     urlPattern: string | RegExp,
-    responseData: any,
+    responseData: unknown,
     delayMs: number,
     status: number = 200
   ): Promise<void> {
@@ -122,7 +122,7 @@ export class MockHelper {
   static async mockWithGenerator(
     page: Page,
     urlPattern: string | RegExp,
-    dataGenerator: () => any,
+    dataGenerator: () => unknown,
     status: number = 200
   ): Promise<void> {
     await page.route(urlPattern, (route: Route) => {
@@ -142,7 +142,7 @@ export class MockHelper {
     page: Page,
     urlPattern: string | RegExp,
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-    responseData: any,
+    responseData: unknown,
     status: number = 200
   ): Promise<void> {
     await page.route(urlPattern, (route: Route) => {
