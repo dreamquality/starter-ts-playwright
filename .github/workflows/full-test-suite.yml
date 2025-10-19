@@ -12,6 +12,8 @@ jobs:
     name: API Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
     
     steps:
       - name: Checkout code
@@ -50,6 +52,8 @@ jobs:
     name: E2E Tests - ${{ matrix.browser }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
     
     strategy:
       fail-fast: false
@@ -94,6 +98,9 @@ jobs:
     needs: [api-tests, e2e-tests]
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
     
     steps:
       - name: Checkout code
@@ -160,6 +167,8 @@ jobs:
     needs: [api-tests, e2e-tests, report]
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - name: Check test results
