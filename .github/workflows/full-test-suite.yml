@@ -1,0 +1,172 @@
+name: Full Test Suite
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  api-tests:
+    name: API Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+        
+      - name: Run API tests
+        run: npm run test:api
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://jsonplaceholder.typicode.com' }}
+          CI: true
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-test-results
+          path: |
+            playwright-report/
+            test-results/
+            allure-results/
+          retention-days: 30
+
+  e2e-tests:
+    name: E2E Tests - ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+        
+      - name: Run E2E tests
+        run: npm run test:e2e -- --project=${{ matrix.browser }}
+        env:
+          BASE_URL: ${{ secrets.BASE_URL || 'https://playwright.dev' }}
+          CI: true
+          
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: e2e-test-results-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+            allure-results/
+          retention-days: 30
+
+  report:
+    name: Generate Reports
+    needs: [api-tests, e2e-tests]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Download API test results
+        uses: actions/download-artifact@v3
+        with:
+          name: api-test-results
+          path: allure-results/api
+        continue-on-error: true
+          
+      - name: Download E2E test results (Chromium)
+        uses: actions/download-artifact@v3
+        with:
+          name: e2e-test-results-chromium
+          path: allure-results/e2e-chromium
+        continue-on-error: true
+          
+      - name: Download E2E test results (Firefox)
+        uses: actions/download-artifact@v3
+        with:
+          name: e2e-test-results-firefox
+          path: allure-results/e2e-firefox
+        continue-on-error: true
+          
+      - name: Download E2E test results (Webkit)
+        uses: actions/download-artifact@v3
+        with:
+          name: e2e-test-results-webkit
+          path: allure-results/e2e-webkit
+        continue-on-error: true
+          
+      - name: Install dependencies
+        run: npm ci
+          
+      - name: Generate Allure Report
+        run: npm run allure-report
+        continue-on-error: true
+        
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 30
+          
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
+
+  notify:
+    name: Notify Results
+    needs: [api-tests, e2e-tests, report]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.api-tests.result }}" == "failure" ] || [ "${{ needs.e2e-tests.result }}" == "failure" ]; then
+            echo "Tests failed!"
+            exit 1
+          else
+            echo "All tests passed!"
+          fi
