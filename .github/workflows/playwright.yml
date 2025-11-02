@@ -23,12 +23,12 @@ jobs:
     - name: Generate Allure Report
       if: always()
       run: npm run allure-report
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       if: always()
       with:
         name: playwright-test-results
         path: test-results/
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       if: always()
       with:
         name: allure-test-results
