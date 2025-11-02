@@ -26,7 +26,7 @@ Download and install
 
 #### **Clone the repository:**
 
-    git clone https://github.com/charlyautomatiza/starter-playwright.git
+    git clone https://github.com/dreamquality/starter-ts-playwright.git
 
 #### **Install dependencies.**
 

@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { MockHelper } from '../../api/mocks/mock-helper';
 import { User } from '../../api/schemas/user-schema';
 import { Post } from '../../api/schemas/post-schema';
