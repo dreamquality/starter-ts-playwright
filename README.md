@@ -65,4 +65,3 @@ To download the latest versions of the Browsers..
 <a href="https://habr.com/ru/post/712084/" alt="404">Page Object, Page Factory</a>
 
 
-
