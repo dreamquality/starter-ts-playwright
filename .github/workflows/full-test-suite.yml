@@ -34,7 +34,7 @@ jobs:
       - name: Run API tests
         run: npm run test:api
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://jsonplaceholder.typicode.com' }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL != '' && secrets.API_BASE_URL || 'https://jsonplaceholder.typicode.com' }}
           CI: true
           
       - name: Upload test results
@@ -79,7 +79,7 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e -- --project=${{ matrix.browser }}
         env:
-          BASE_URL: ${{ secrets.BASE_URL || 'https://playwright.dev' }}
+          BASE_URL: ${{ secrets.BASE_URL != '' && secrets.BASE_URL || 'https://playwright.dev' }}
           CI: true
           
       - name: Upload test results

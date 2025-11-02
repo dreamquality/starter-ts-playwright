@@ -41,7 +41,7 @@ jobs:
       - name: Run API tests
         run: npm run test:api
         env:
-          API_BASE_URL: ${{ secrets.API_BASE_URL || 'https://jsonplaceholder.typicode.com' }}
+          API_BASE_URL: ${{ secrets.API_BASE_URL != '' && secrets.API_BASE_URL || 'https://jsonplaceholder.typicode.com' }}
           API_AUTH_TOKEN: ${{ secrets.API_AUTH_TOKEN }}
           CI: true
           
