@@ -13,6 +13,10 @@
     "webkit": "npx playwright test --project=webkit",
     "test": "npm run clean && npx playwright test --project=chromium",
     "test-head": "npm run clean && npx playwright test --headed",
+    "test:api": "npm run clean && npx playwright test tests/api --project=chromium",
+    "test:e2e": "npm run clean && npx playwright test tests/test-*.spec.ts --project=chromium",
+    "test:all": "npm run clean && npx playwright test --project=chromium",
+    "test:api-headed": "npm run clean && npx playwright test tests/api --headed",
     "reinstall": "npx playwright install",
     "install-deps": "npx playwright install-deps"
   },
@@ -33,7 +37,7 @@
     "@types/node": "^24.9.2",
     "allure-commandline": "^2.34.1",
     "allure-playwright": "^3.4.1",
-    "playwright": "^1.55.0"
+    "playwright": "^1.56.1"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
