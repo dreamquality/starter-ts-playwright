@@ -196,10 +196,17 @@ FileAssertions.sizeGreaterThan('file.txt', 1000);
 #### Polling Utility
 Poll until a condition is met:
 ```typescript
-import { pollUntil } from 'playwright-forge';
+import { poll, pollUntilValue } from 'playwright-forge';
 
-const result = await pollUntil(
+// Poll until condition returns true
+const result = await poll(
   async () => await condition(),
+  { timeout: 5000, interval: 100 }
+);
+
+// Poll and return the value
+const value = await pollUntilValue(
+  async () => await getValue(),
   { timeout: 5000, interval: 100 }
 );
 ```

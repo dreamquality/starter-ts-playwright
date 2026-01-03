@@ -92,7 +92,8 @@ test.describe('Playwright-Forge Utilities Available', () => {
       stableSelect,
       softAssertions,
       FileAssertions,
-      pollUntil
+      poll,
+      pollUntilValue
     } = await import('playwright-forge');
     
     expect(validateJsonSchema).toBeDefined();
@@ -102,7 +103,8 @@ test.describe('Playwright-Forge Utilities Available', () => {
     expect(stableSelect).toBeDefined();
     expect(softAssertions).toBeDefined();
     expect(FileAssertions).toBeDefined();
-    expect(pollUntil).toBeDefined();
+    expect(poll).toBeDefined();
+    expect(pollUntilValue).toBeDefined();
     
     console.log('✅ All utilities are importable');
   });
@@ -146,9 +148,14 @@ test.describe('Package Installation Summary', () => {
   ✓ stableSelect       - Reliable select actions
   ✓ softAssertions     - Collect and verify assertions
   ✓ FileAssertions     - File testing utilities
-  ✓ pollUntil          - Polling with timeout
-  ✓ downloadHelpers    - File download utilities
+  ✓ pollUntilValue     - Polling with result return
   ✓ faker              - Direct access to Faker library
+
+📝 NOTE:
+  Some example tests require external network access (jsonplaceholder API,
+  playwright.dev) and may not run in restricted CI environments. The core
+  functionality is verified by the installation tests which don't require
+  network access.
 
 📚 EXAMPLE TESTS:
   Check tests/playwright-forge-examples/ for comprehensive

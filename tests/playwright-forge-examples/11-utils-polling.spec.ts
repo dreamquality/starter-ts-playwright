@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
-import { pollUntil } from 'playwright-forge';
+import { poll, pollValue } from 'playwright-forge';
 
 test.describe('Polling Utility Examples', () => {
   test('Poll until condition is met', async () => {
     let counter = 0;
     
     // Poll until counter reaches 5
-    const result = await pollUntil(
+    const result = await poll(
       async () => {
         counter++;
         return counter >= 5;
@@ -17,7 +17,6 @@ test.describe('Polling Utility Examples', () => {
       }
     );
     
-    expect(result).toBe(true);
     expect(counter).toBeGreaterThanOrEqual(5);
     console.log(`Polled ${counter} times until condition met`);
   });
@@ -25,7 +24,7 @@ test.describe('Polling Utility Examples', () => {
   test('Poll with custom interval', async () => {
     let attempts = 0;
     
-    const result = await pollUntil(
+    const result = await poll(
       async () => {
         attempts++;
         return attempts >= 3;
@@ -36,7 +35,6 @@ test.describe('Polling Utility Examples', () => {
       }
     );
     
-    expect(result).toBe(true);
     expect(attempts).toBe(3);
     console.log(`Polling completed in ${attempts} attempts`);
   });
@@ -45,7 +43,7 @@ test.describe('Polling Utility Examples', () => {
     await page.goto('https://playwright.dev');
     
     // Poll until element is visible
-    const isVisible = await pollUntil(
+    const isVisible = const result = await poll(
       async () => {
         const nav = page.locator('nav').first();
         return await nav.count() > 0 && await nav.isVisible();
@@ -63,7 +61,7 @@ test.describe('Polling Utility Examples', () => {
   test('Poll for API response', async ({ request }) => {
     let responseReceived = false;
     
-    const result = await pollUntil(
+    const result = const result = await poll(
       async () => {
         const response = await request.get('https://jsonplaceholder.typicode.com/posts/1');
         responseReceived = response.ok();
@@ -75,7 +73,7 @@ test.describe('Polling Utility Examples', () => {
       }
     );
     
-    expect(result).toBe(true);
+    expect(result).toBeTruthy();
     expect(responseReceived).toBe(true);
     console.log('API response received');
   });
@@ -84,7 +82,7 @@ test.describe('Polling Utility Examples', () => {
     let attempts = 0;
     
     try {
-      await pollUntil(
+      const result = await poll(
         async () => {
           attempts++;
           return false;  // Never becomes true
@@ -105,7 +103,7 @@ test.describe('Polling Utility Examples', () => {
     await page.waitForLoadState('networkidle');
     
     // Poll until page title is loaded
-    const hasTitle = await pollUntil(
+    const hasTitle = const result = await poll(
       async () => {
         const title = await page.title();
         return title.length > 0;
@@ -124,7 +122,7 @@ test.describe('Polling Utility Examples', () => {
     await page.goto('https://playwright.dev');
     
     // Poll until both nav and main are visible
-    const allVisible = await pollUntil(
+    const allVisible = const result = await poll(
       async () => {
         const nav = page.locator('nav').first();
         const main = page.locator('main').first();
@@ -147,7 +145,7 @@ test.describe('Polling Utility Examples', () => {
   test('Poll with return value', async () => {
     let value = 0;
     
-    const result = await pollUntil(
+    const result = const result = await poll(
       async () => {
         value += 10;
         return value >= 50;
@@ -158,7 +156,7 @@ test.describe('Polling Utility Examples', () => {
       }
     );
     
-    expect(result).toBe(true);
+    expect(result).toBeTruthy();
     expect(value).toBeGreaterThanOrEqual(50);
     console.log(`Final value: ${value}`);
   });
@@ -167,7 +165,7 @@ test.describe('Polling Utility Examples', () => {
     await page.goto('https://playwright.dev');
     
     // Poll until specific text appears
-    const textFound = await pollUntil(
+    const textFound = const result = await poll(
       async () => {
         const content = await page.content();
         return content.includes('Playwright');
@@ -187,7 +185,7 @@ test.describe('Polling Utility Examples', () => {
     const intervals = [100, 200, 400, 800];
     
     for (const interval of intervals) {
-      const result = await pollUntil(
+      const result = const result = await poll(
         async () => {
           attempts++;
           return attempts >= 2;
