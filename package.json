@@ -33,7 +33,8 @@
     "@types/node": "^25.0.3",
     "allure-commandline": "^2.36.0",
     "allure-playwright": "^3.4.3",
-    "playwright": "^1.57.0"
+    "playwright": "^1.57.0",
+    "playwright-forge": "^1.0.0"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
