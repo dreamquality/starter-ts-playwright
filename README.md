@@ -66,29 +66,63 @@ To download the latest versions of the Browsers..
 
 ## 🔧 Playwright-Forge Integration
 
-This project now includes [playwright-forge](https://www.npmjs.com/package/playwright-forge), a powerful collection of reusable fixtures and utilities to enhance Playwright testing.
+This project includes [playwright-forge](https://www.npmjs.com/package/playwright-forge), a powerful collection of reusable fixtures and utilities for enhanced Playwright testing.
+
+## 🏢 Employee Management CRM - Real-World Example
+
+This repository includes comprehensive E2E tests for the [Employee Management CRM](https://github.com/dreamquality/employee-management-crm) application, demonstrating real-world usage of playwright-forge with a production-like API.
+
+### Quick Start with Employee CRM Tests
+
+1. **Start the application with Docker:**
+   ```bash
+   docker-compose -f docker-compose.employee-crm.yml up -d
+   ```
+
+2. **Wait for services to initialize (30-60 seconds)**
+
+3. **Run the tests:**
+   ```bash
+   npx playwright test tests/employee-crm-api/
+   ```
+
+4. **View Swagger API documentation:**
+   - Local: http://localhost:3000/api-docs
+   - Online: https://dreamquality.github.io/employee-management-crm/
+
+### What's Tested
+
+The Employee CRM tests demonstrate:
+- ✅ **Authentication**: Registration, login, JWT tokens, admin/employee roles
+- ✅ **Employee Management**: CRUD operations with proper authorization
+- ✅ **Data Generation**: Using `DataFactory` for realistic test data
+- ✅ **Schema Validation**: Validating API responses with `validateJsonSchema`
+- ✅ **OpenAPI Integration**: Testing against Swagger documentation
+- ✅ **Docker Compose**: Running real application stack in CI/CD
+
+See [tests/employee-crm-api/README.md](tests/employee-crm-api/README.md) for detailed documentation.
+
+## 📚 Playwright-Forge Features
 
 ### Available Fixtures
 
 #### API Fixture
-Provides a configured API request context for testing REST APIs:
+Test REST APIs with configured request context:
 ```typescript
 import { apiFixture } from 'playwright-forge';
-const test = apiFixture;
 
-test('API test', async ({ api }) => {
-  const response = await api.get('https://api.example.com/data');
+apiFixture('API test', async ({ api }) => {
+  const response = await api.get('http://localhost:3000/api/employees');
   expect(response.ok()).toBeTruthy();
 });
 ```
 
 #### Cleanup Fixture
-Manages resource cleanup after tests:
+Manage resource cleanup after tests:
 ```typescript
 import { cleanupFixture } from 'playwright-forge';
-const test = cleanupFixture;
 
-test('Test with cleanup', async ({ cleanup }) => {
+cleanupFixture('Test with cleanup', async ({ cleanup }) => {
   cleanup.addTask(async () => {
     // Cleanup code runs after test
   });
@@ -96,7 +130,7 @@ test('Test with cleanup', async ({ cleanup }) => {
 ```
 
 #### Diagnostics Fixture
-Captures screenshots, traces, and page content for debugging:
+Capture screenshots, traces, and page content for debugging:
 ```typescript
 import { diagnosticsFixture } from 'playwright-forge';
 const test = diagnosticsFixture;
@@ -213,66 +247,11 @@ const value = await pollUntilValue(
 
 #### Download Helpers
 Handle file downloads:
-```typescript
-import { waitForDownload, getDownloadPath } from 'playwright-forge';
-
-const downloadPromise = waitForDownload(page);
-await page.click('#download-button');
-const download = await downloadPromise;
-const filePath = await getDownloadPath(download);
-```
-
-### Example Tests
-
-Check the `tests/playwright-forge-examples/` directory for comprehensive examples of all fixtures and utilities:
-
-- `01-fixtures-api.spec.ts` - API fixture examples
-- `02-fixtures-cleanup.spec.ts` - Cleanup fixture examples
-- `03-fixtures-diagnostics.spec.ts` - Diagnostics fixture examples
-- `04-fixtures-network.spec.ts` - Network fixture examples
-- `05-utils-data-factory.spec.ts` - DataFactory utility examples
-- `06-utils-json-schema.spec.ts` - JSON schema validation examples
-- `07-utils-page-guard.spec.ts` - PageGuard utility examples
-- `08-utils-stable-actions.spec.ts` - Stable action helpers examples
-- `09-utils-soft-assertions.spec.ts` - Soft assertions examples
-- `10-utils-file-assertions.spec.ts` - File assertions examples
-- `11-utils-polling.spec.ts` - Polling utility examples
-- `12-utils-download-helper.spec.ts` - Download helper examples
-- `13-combined-examples.spec.ts` - Combined features demonstration
-
-### Running Playwright-Forge Examples
-
-To run the playwright-forge example tests:
-
-```bash
-# Run all examples
-npx playwright test tests/playwright-forge-examples/
-
-# Run specific example
-npx playwright test tests/playwright-forge-examples/01-fixtures-api.spec.ts
-
-# Run with UI mode
-npx playwright test tests/playwright-forge-examples/ --ui
-```
-
-### Combining Fixtures
-
-You can combine multiple fixtures in your tests:
-
-```typescript
-import { apiFixture, cleanupFixture, diagnosticsFixture } from 'playwright-forge';
-
-const test = apiFixture
-  .extend(cleanupFixture.fixtures)
-  .extend(diagnosticsFixture.fixtures);
-
-test('Combined test', async ({ api, cleanup, diagnostics, page }) => {
-  // Use all fixtures together
-});
 ```
 
 ### Learn More
 
+- [Employee CRM API Tests Documentation](tests/employee-crm-api/README.md)
 - [playwright-forge on npm](https://www.npmjs.com/package/playwright-forge)
 - [Playwright Documentation](https://playwright.dev)
 

@@ -1,0 +1,83 @@
+name: Employee CRM E2E Tests
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'tests/employee-crm-api/**'
+      - 'docker-compose.employee-crm.yml'
+      - '.github/workflows/employee-crm-tests.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'tests/employee-crm-api/**'
+      - 'docker-compose.employee-crm.yml'
+      - '.github/workflows/employee-crm-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '20.x'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+      
+    - name: Start Employee CRM with Docker Compose
+      run: |
+        docker-compose -f docker-compose.employee-crm.yml up -d
+        echo "Waiting for services to be ready..."
+        sleep 45
+        
+    - name: Verify services are running
+      run: |
+        docker-compose -f docker-compose.employee-crm.yml ps
+        echo "Checking API health..."
+        for i in {1..10}; do
+          if curl -f http://localhost:3000/ 2>/dev/null; then
+            echo "API is ready!"
+            break
+          fi
+          echo "Waiting for API... attempt $i/10"
+          sleep 5
+        done
+        
+    - name: Run Employee CRM E2E tests
+      run: npx playwright test tests/employee-crm-api/ --project=chromium
+      env:
+        API_BASE_URL: http://localhost:3000
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v6
+      if: always()
+      with:
+        name: employee-crm-test-results
+        path: |
+          test-results/
+          playwright-report/
+        retention-days: 30
+        
+    - name: Show Docker logs on failure
+      if: failure()
+      run: |
+        echo "=== App Logs ==="
+        docker-compose -f docker-compose.employee-crm.yml logs app
+        echo "=== Database Logs ==="
+        docker-compose -f docker-compose.employee-crm.yml logs db
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        docker-compose -f docker-compose.employee-crm.yml down -v
