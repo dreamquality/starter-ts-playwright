@@ -1,11 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { networkFixture } from 'playwright-forge';
 
-// Extend base test with network fixture
-const networkTest = test.extend(networkFixture.fixtures);
-
 test.describe('Network Fixture Examples', () => {
-  test('Mock API response', async ({ network, page }) => {
+  networkFixture('Mock API response', async ({ network, page }) => {
     // Mock a specific API endpoint
     await network.mockRoute('**/api/data', {
       status: 200,
@@ -19,7 +16,7 @@ test.describe('Network Fixture Examples', () => {
     console.log('Network mock configured');
   });
 
-  test('Mock multiple endpoints', async ({ network, page }) => {
+  networkFixture('Mock multiple endpoints', async ({ network, page }) => {
     // Mock user endpoint
     await network.mockRoute('**/api/user', {
       status: 200,
@@ -40,7 +37,7 @@ test.describe('Network Fixture Examples', () => {
     console.log('Multiple network mocks configured');
   });
 
-  test('Intercept and modify request', async ({ network, page }) => {
+  networkFixture('Intercept and modify request', async ({ network, page }) => {
     // Intercept requests and modify them
     await page.route('**/*', async (route) => {
       const request = route.request();

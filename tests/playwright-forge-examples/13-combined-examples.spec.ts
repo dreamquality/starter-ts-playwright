@@ -8,23 +8,12 @@ import {
   softAssertions,
   createPageGuard,
   stableClick,
-  stableFill,
-  FileAssertions
+  stableFill
 } from 'playwright-forge';
 
-// Combine multiple fixtures
-const combinedTest = test
-  .extend(apiFixture.fixtures)
-  .extend(cleanupFixture.fixtures)
-  .extend(diagnosticsFixture.fixtures);
-
 test.describe('Combined playwright-forge Features', () => {
-  combinedTest('Complete workflow example', async ({ 
-    api, 
-    cleanup, 
-    diagnostics, 
-    page 
-  }) => {
+  
+  apiFixture('API testing with DataFactory and validation', async ({ api }) => {
     // 1. Generate test data
     const testUser = DataFactory.user();
     console.log('Generated test user:', testUser.email);
@@ -53,15 +42,24 @@ test.describe('Combined playwright-forge Features', () => {
     };
     
     validateJsonSchema(createdUser, userSchema);
-    console.log('API response validated');
-    
-    // 4. Register cleanup task
+    console.log('API response validated with JSON schema');
+  });
+
+  cleanupFixture('Cleanup with diagnostics', async ({ cleanup, diagnostics, page }) => {
+    // Register cleanup task
     cleanup.addTask(async () => {
-      console.log('Cleanup: Would delete user', createdUser.id);
-      // In real scenario: await api.delete(`/users/${createdUser.id}`);
+      console.log('Cleanup: Removing test artifacts');
     });
     
-    // 5. Navigate to website with page guard
+    // Navigate and capture diagnostics
+    await page.goto('https://playwright.dev');
+    await diagnostics.captureScreenshot('cleanup-example');
+    
+    console.log('Test with cleanup and diagnostics completed');
+  });
+
+  diagnosticsFixture('Diagnostics with PageGuard', async ({ diagnostics, page }) => {
+    // Use page guard for reliable page loading
     const guard = createPageGuard(page, { 
       debug: true,
       waitForNetworkIdle: true 
@@ -70,10 +68,17 @@ test.describe('Combined playwright-forge Features', () => {
     await page.goto('https://playwright.dev');
     await guard.waitForReady();
     
-    // 6. Capture screenshot
-    await diagnostics.captureScreenshot('user-workflow-homepage');
+    // Capture screenshot after page is ready
+    await diagnostics.captureScreenshot('page-guard-ready');
     
-    // 7. Use soft assertions for multiple checks
+    console.log('PageGuard with diagnostics completed');
+  });
+
+  test('Stable actions with soft assertions', async ({ page }) => {
+    await page.goto('https://playwright.dev');
+    await page.waitForLoadState('networkidle');
+    
+    // Use soft assertions for multiple checks
     const soft = softAssertions();
     
     await soft.assert(async () => {
@@ -88,12 +93,11 @@ test.describe('Combined playwright-forge Features', () => {
     soft.verify();
     console.log('Soft assertions passed');
     
-    // 8. Use stable actions for interaction
+    // Use stable actions for reliable interactions
     const searchButton = page.locator('button[class*="search"]').first();
     if (await searchButton.count() > 0) {
       await stableClick(page, 'button[class*="search"]', {
-        maxRetries: 3,
-        debug: true
+        maxRetries: 3
       });
       
       await page.waitForTimeout(500);
@@ -101,17 +105,12 @@ test.describe('Combined playwright-forge Features', () => {
       const searchInput = page.locator('input[type="search"]').first();
       if (await searchInput.count() > 0) {
         await stableFill(page, 'input[type="search"]', 'testing');
-        
-        // Capture another screenshot
-        await diagnostics.captureScreenshot('user-workflow-search');
+        console.log('Stable actions completed');
       }
     }
-    
-    console.log('Combined workflow completed successfully');
   });
 
-  combinedTest('API testing with fixtures', async ({ api, diagnostics }) => {
-    // Test multiple endpoints
+  apiFixture('Multiple API endpoints with soft assertions', async ({ api }) => {
     const endpoints = [
       '/posts/1',
       '/users/1',
@@ -124,14 +123,15 @@ test.describe('Combined playwright-forge Features', () => {
       await soft.assert(async () => {
         const response = await api.get(`https://jsonplaceholder.typicode.com${endpoint}`);
         expect(response.ok()).toBeTruthy();
+        console.log(`Endpoint ${endpoint} validated`);
       });
     }
     
     soft.verify();
-    console.log('All API endpoints validated');
+    console.log('All API endpoints validated with soft assertions');
   });
 
-  combinedTest('Data factory with API', async ({ api }) => {
+  apiFixture('DataFactory integration with API testing', async ({ api }) => {
     // Generate multiple test users
     const users = Array.from({ length: 3 }, () => DataFactory.user());
     
@@ -152,33 +152,11 @@ test.describe('Combined playwright-forge Features', () => {
     }
     
     soft.verify();
-    console.log(`Created ${users.length} test users`);
+    console.log(`Created ${users.length} test users with DataFactory`);
   });
 
-  combinedTest('Full diagnostic capture', async ({ page, diagnostics, cleanup }) => {
-    // Start trace
-    await diagnostics.startTrace();
-    
-    // Perform actions
-    await page.goto('https://playwright.dev');
-    await diagnostics.captureScreenshot('step-1');
-    
-    await page.getByRole('link', { name: 'Docs' }).first().click();
-    await page.waitForLoadState('networkidle');
-    await diagnostics.captureScreenshot('step-2');
-    
-    // Stop trace
-    await diagnostics.stopTrace('full-diagnostic-trace');
-    
-    // Capture final page content
-    await diagnostics.capturePageContent('final-state');
-    
-    console.log('Full diagnostic capture completed');
-  });
-
-  combinedTest('Complex validation scenario', async ({ api, page }) => {
-    // 1. API test with schema validation
-    const response = await api.get('https://jsonplaceholder.typicode.com/posts/1');
+  test('JSON schema validation with generated data', async ({ request }) => {
+    const response = await request.get('https://jsonplaceholder.typicode.com/posts/1');
     const post = await response.json();
     
     const postSchema = {
@@ -193,76 +171,77 @@ test.describe('Combined playwright-forge Features', () => {
     };
     
     validateJsonSchema(post, postSchema);
+    console.log('API response validated against schema');
+  });
+
+  test('PageGuard with stable actions', async ({ page }) => {
+    const guard = createPageGuard(page, { debug: true });
     
-    // 2. Use page guard for UI
-    const guard = createPageGuard(page);
     await page.goto('https://playwright.dev');
     await guard.waitForReady();
     
-    // 3. Soft assertions for UI elements
-    const soft = softAssertions();
-    
-    await soft.assert(async () => {
-      expect(await page.title()).toBeTruthy();
-    });
-    
-    await soft.assert(async () => {
-      const links = page.locator('a');
-      expect(await links.count()).toBeGreaterThan(0);
-    });
-    
-    soft.verify();
-    
-    console.log('Complex validation scenario completed');
+    // Use stable actions after page guard ensures readiness
+    const docsLink = page.locator('a[href*="docs"]').first();
+    if (await docsLink.count() > 0) {
+      await stableClick(page, 'a[href*="docs"]', {
+        maxRetries: 3
+      });
+      console.log('Navigation with PageGuard and stable actions completed');
+    }
   });
 });
 
-test.describe('Individual utility demonstrations', () => {
-  test('All DataFactory methods', () => {
-    console.log('DataFactory methods:');
-    console.log('- user():', DataFactory.user());
-    console.log('- email():', DataFactory.email());
-    console.log('- phoneNumber():', DataFactory.phoneNumber());
-    console.log('- firstName():', DataFactory.firstName());
-    console.log('- lastName():', DataFactory.lastName());
-    console.log('- company():', DataFactory.company());
-    console.log('- jobTitle():', DataFactory.jobTitle());
-    console.log('- address():', DataFactory.address());
-    console.log('- randomString(10):', DataFactory.randomString(10));
-    console.log('- randomNumber(1, 100):', DataFactory.randomNumber(1, 100));
-    console.log('- boolean():', DataFactory.boolean());
-    console.log('- date():', DataFactory.date());
-  });
-
-  test('JSON Schema validation patterns', () => {
-    console.log(`
-JSON Schema Validation Patterns:
-
-1. Simple object validation
-2. Array validation
-3. Nested objects
-4. String constraints (minLength, maxLength, pattern)
-5. Number constraints (minimum, maximum)
-6. Enum validation
-7. Required vs optional fields
-8. Type checking (string, number, boolean, array, object)
-    `);
+test.describe('Utility demonstrations', () => {
+  test('All DataFactory methods showcase', () => {
+    console.log('DataFactory generates realistic test data:');
+    console.log('- Full user object:', DataFactory.user());
+    console.log('- Email:', DataFactory.email());
+    console.log('- Phone:', DataFactory.phoneNumber());
+    console.log('- First name:', DataFactory.firstName());
+    console.log('- Last name:', DataFactory.lastName());
+    console.log('- Company:', DataFactory.company());
+    console.log('- Job title:', DataFactory.jobTitle());
+    console.log('- Address:', DataFactory.address());
+    console.log('- Random string(10):', DataFactory.randomString(10));
+    console.log('- Random number(1-100):', DataFactory.randomNumber(1, 100));
+    console.log('- Boolean:', DataFactory.boolean());
+    console.log('- Date:', DataFactory.date());
   });
 
   test('Available fixtures summary', () => {
     console.log(`
-Available playwright-forge Fixtures:
+Playwright-Forge Fixtures Available:
 
-1. apiFixture - Provides configured API request context
-2. cleanupFixture - Manages cleanup tasks after tests
-3. diagnosticsFixture - Screenshots, traces, page content capture
-4. networkFixture - Network mocking and monitoring
-5. authFixture - Authentication helpers (requires configuration)
+1. apiFixture - Provides configured API request context for testing REST APIs
+   Usage: apiFixture('test name', async ({ api }) => { ... })
 
-Usage:
-  const test = apiFixture
-    .extend(cleanupFixture.fixtures)
-    .extend(diagnosticsFixture.fixtures);
+2. cleanupFixture - Manages cleanup tasks that run after tests complete
+   Usage: cleanupFixture('test name', async ({ cleanup }) => { ... })
+
+3. diagnosticsFixture - Captures screenshots, traces, and page content
+   Usage: diagnosticsFixture('test name', async ({ diagnostics }) => { ... })
+
+4. networkFixture - Network mocking and monitoring capabilities
+   Usage: networkFixture('test name', async ({ network }) => { ... })
+
+All fixtures are parallel-safe with per-test isolation.
+    `);
+  });
+
+  test('Key utilities overview', () => {
+    console.log(`
+Playwright-Forge Utilities Available:
+
+1. DataFactory - Generate realistic test data (users, emails, addresses, etc.)
+2. validateJsonSchema - Validate JSON against schemas
+3. createPageGuard - Ensure pages are fully loaded before interactions
+4. stableClick, stableFill, stableSelect - Reliable UI actions with retries
+5. softAssertions - Collect multiple assertions and verify together
+6. FileAssertions - Assert file existence, content, and properties
+7. pollUntil - Poll until a condition is met
+8. waitForDownload, getDownloadPath - Handle file downloads
+9. OpenAPI validators and matchers - Validate API responses
+10. CI annotations - Add annotations to CI/CD workflows
     `);
   });
 });

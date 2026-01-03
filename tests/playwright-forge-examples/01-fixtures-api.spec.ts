@@ -1,11 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { apiFixture } from 'playwright-forge';
 
-// Extend base test with API fixture
-const apiTest = test.extend(apiFixture.fixtures);
-
-test.describe('API Fixture Examples', () => {
-  test('Basic API request with fixture', async ({ api }) => {
+apiFixture.describe('API Fixture Examples', () => {
+  apiFixture('Basic API request with fixture', async ({ api }) => {
     // The api fixture provides a configured request context
     const response = await api.get('https://jsonplaceholder.typicode.com/posts/1');
     
@@ -18,7 +15,7 @@ test.describe('API Fixture Examples', () => {
     expect(data).toHaveProperty('body');
   });
 
-  test('POST request with API fixture', async ({ api }) => {
+  apiFixture('POST request with API fixture', async ({ api }) => {
     const newPost = {
       title: 'Test Post',
       body: 'This is a test post created with playwright-forge',
@@ -37,7 +34,7 @@ test.describe('API Fixture Examples', () => {
     expect(data.body).toBe(newPost.body);
   });
 
-  test('Multiple API calls in sequence', async ({ api }) => {
+  apiFixture('Multiple API calls in sequence', async ({ api }) => {
     // Get list of posts
     const listResponse = await api.get('https://jsonplaceholder.typicode.com/posts');
     expect(listResponse.ok()).toBeTruthy();

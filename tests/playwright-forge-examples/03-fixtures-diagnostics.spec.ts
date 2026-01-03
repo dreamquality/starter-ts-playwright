@@ -1,12 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { diagnosticsFixture } from 'playwright-forge';
-import * as path from 'path';
 
-// Extend base test with diagnostics fixture
-const diagnosticsTest = test.extend(diagnosticsFixture.fixtures);
-
-test.describe('Diagnostics Fixture Examples', () => {
-  test('Capture screenshot at specific point', async ({ diagnostics, page }) => {
+diagnosticsFixture.describe('Diagnostics Fixture Examples', () => {
+  diagnosticsFixture('Capture screenshot at specific point', async ({ diagnostics, page }) => {
     await page.goto('https://playwright.dev');
     
     // Capture a screenshot with a custom name
@@ -16,7 +12,7 @@ test.describe('Diagnostics Fixture Examples', () => {
     expect(await page.title()).toContain('Playwright');
   });
 
-  test('Capture multiple screenshots during test flow', async ({ diagnostics, page }) => {
+  diagnosticsFixture('Capture multiple screenshots during test flow', async ({ diagnostics, page }) => {
     // Navigate to home page
     await page.goto('https://playwright.dev');
     await diagnostics.captureScreenshot('step-1-homepage');
@@ -29,7 +25,7 @@ test.describe('Diagnostics Fixture Examples', () => {
     expect(page.url()).toContain('docs');
   });
 
-  test('Capture trace for debugging', async ({ diagnostics, page }) => {
+  diagnosticsFixture('Capture trace for debugging', async ({ diagnostics, page }) => {
     // Start tracing before actions
     await diagnostics.startTrace();
     
@@ -43,7 +39,7 @@ test.describe('Diagnostics Fixture Examples', () => {
     expect(page.url()).toContain('playwright.dev');
   });
 
-  test('Capture page HTML content', async ({ diagnostics, page }) => {
+  diagnosticsFixture('Capture page HTML content', async ({ diagnostics, page }) => {
     await page.goto('https://playwright.dev');
     
     // Capture HTML content for debugging
@@ -52,7 +48,7 @@ test.describe('Diagnostics Fixture Examples', () => {
     expect(await page.content()).toContain('Playwright');
   });
 
-  test('Capture console logs', async ({ diagnostics, page }) => {
+  diagnosticsFixture('Capture console logs', async ({ diagnostics, page }) => {
     // Set up console log capture
     const logs: string[] = [];
     page.on('console', msg => {
@@ -68,7 +64,7 @@ test.describe('Diagnostics Fixture Examples', () => {
     expect(logs.length).toBeGreaterThanOrEqual(0);
   });
 
-  test('Full diagnostic capture on failure', async ({ diagnostics, page }) => {
+  diagnosticsFixture('Full diagnostic capture on failure', async ({ diagnostics, page }) => {
     await page.goto('https://playwright.dev');
     
     try {

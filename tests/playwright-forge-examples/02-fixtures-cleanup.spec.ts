@@ -1,11 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
 import { cleanupFixture } from 'playwright-forge';
 
-// Extend base test with cleanup fixture
-const cleanupTest = test.extend(cleanupFixture.fixtures);
-
-test.describe('Cleanup Fixture Examples', () => {
-  test('Cleanup after test - basic example', async ({ cleanup, page }) => {
+cleanupFixture.describe('Cleanup Fixture Examples', () => {
+  cleanupFixture('Cleanup after test - basic example', async ({ cleanup, page }) => {
     // Register cleanup task to be executed after test
     cleanup.addTask(async () => {
       console.log('Cleanup task executed: closing resources');
@@ -17,7 +14,7 @@ test.describe('Cleanup Fixture Examples', () => {
     // Cleanup will automatically run after test completes
   });
 
-  test('Multiple cleanup tasks in order', async ({ cleanup, page }) => {
+  cleanupFixture('Multiple cleanup tasks in order', async ({ cleanup, page }) => {
     const logs: string[] = [];
 
     // Cleanup tasks are executed in LIFO order (last in, first out)
@@ -42,7 +39,7 @@ test.describe('Cleanup Fixture Examples', () => {
     // Expected order: Task 3, Task 2, Task 1
   });
 
-  test('Cleanup with resource management', async ({ cleanup, page }) => {
+  cleanupFixture('Cleanup with resource management', async ({ cleanup, page }) => {
     const tempData = {
       id: Date.now(),
       name: 'Temporary Resource'
@@ -60,7 +57,7 @@ test.describe('Cleanup Fixture Examples', () => {
     expect(await page.title()).toBeTruthy();
   });
 
-  test('Cleanup with error handling', async ({ cleanup, page }) => {
+  cleanupFixture('Cleanup with error handling', async ({ cleanup, page }) => {
     cleanup.addTask(async () => {
       try {
         // Simulating cleanup that might fail
