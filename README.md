@@ -74,21 +74,26 @@ This repository includes comprehensive E2E tests for the [Employee Management CR
 
 ### Quick Start with Employee CRM Tests
 
-1. **Build and start the application with Docker:**
+1. **Clone the Employee CRM repository:**
+   ```bash
+   git clone https://github.com/dreamquality/employee-management-crm.git /tmp/employee-crm
+   ```
+
+2. **Build and start the application with Docker:**
    ```bash
    docker-compose -f docker-compose.employee-crm.yml up -d --build
    ```
 
-2. **Wait for services to initialize**
+3. **Wait for services to initialize**
    - First run: 2-3 minutes (builds from source)
    - Subsequent runs: 30-60 seconds
 
-3. **Run the tests:**
+4. **Run the tests:**
    ```bash
    npx playwright test tests/employee-crm-api/
    ```
 
-4. **View Swagger API documentation:**
+5. **View Swagger API documentation:**
    - Local: http://localhost:3000/api-docs
    - Online: https://dreamquality.github.io/employee-management-crm/
 

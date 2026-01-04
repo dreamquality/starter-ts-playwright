@@ -26,8 +26,10 @@ The employee-management-crm application runs in Docker containers. Make sure you
 From the repository root:
 
 ```bash
+# First, clone the Employee CRM repository
+git clone https://github.com/dreamquality/employee-management-crm.git /tmp/employee-crm
+
 # Build and start the Employee CRM application
-# Note: First run will take longer as it builds from source
 docker-compose -f docker-compose.employee-crm.yml up -d --build
 
 # Wait for services to be ready (build, database migrations, seed data)
@@ -37,7 +39,7 @@ docker-compose -f docker-compose.employee-crm.yml up -d --build
 docker-compose -f docker-compose.employee-crm.yml ps
 ```
 
-**Note**: The application is built from the [employee-management-crm](https://github.com/dreamquality/employee-management-crm) GitHub repository on first run.
+**Note**: The application is built from a local clone of the [employee-management-crm](https://github.com/dreamquality/employee-management-crm) repository.
 
 The application will be available at:
 - API: http://localhost:3000

@@ -3,7 +3,7 @@ version: "3.8"
 services:
   app:
     build:
-      context: https://github.com/dreamquality/employee-management-crm.git#main
+      context: /tmp/employee-crm
       dockerfile: Dockerfile
     container_name: employee_crm_app
     environment:

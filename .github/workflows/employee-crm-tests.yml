@@ -37,6 +37,11 @@ jobs:
     - name: Install Playwright browsers
       run: npx playwright install --with-deps chromium
       
+    - name: Clone Employee CRM repository
+      run: |
+        echo "Cloning employee-management-crm repository..."
+        git clone --depth 1 https://github.com/dreamquality/employee-management-crm.git /tmp/employee-crm
+        
     - name: Start Employee CRM with Docker Compose
       run: |
         echo "Building and starting Employee CRM services..."
@@ -50,7 +55,7 @@ jobs:
         docker-compose -f docker-compose.employee-crm.yml ps
         echo ""
         echo "Checking if database is ready..."
-        docker-compose -f docker-compose.employee-crm.yml exec -T db pg_isready -U postgres || echo "Database not ready yet"
+        docker-compose -f docker-compose.employee-crm.yml exec -T db pg_isready -U postgres || echo "⏳ Database still starting up..."
         echo ""
         echo "Checking API health..."
         for i in {1..15}; do
