@@ -4,9 +4,9 @@ import {
   validateJsonSchema, 
   OpenApiValidator,
   validateResponse,
-  SoftAssertions,
   softAssertions
 } from 'playwright-forge';
+import type { SoftAssertions } from 'playwright-forge';
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
 const OPENAPI_SPEC_URL = 'https://dreamquality.github.io/employee-management-crm/openapi.json';

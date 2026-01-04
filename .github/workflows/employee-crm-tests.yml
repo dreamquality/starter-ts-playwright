@@ -47,29 +47,47 @@ jobs:
         echo "Building and starting Employee CRM services..."
         docker compose -f docker-compose.employee-crm.yml up -d --build
         echo "Services started. Waiting for application to be ready..."
-        sleep 60
+        sleep 90
         
     - name: Verify services are running
       run: |
         echo "Checking Docker containers status..."
         docker compose -f docker-compose.employee-crm.yml ps
         echo ""
-        echo "Waiting for services to be fully ready..."
-        sleep 10
-        echo ""
-        echo "Checking API health..."
-        for i in {1..15}; do
-          if curl -f http://localhost:3000/ 2>/dev/null; then
-            echo "✅ API is ready!"
+        echo "Checking container health..."
+        for i in {1..20}; do
+          APP_STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose -f docker-compose.employee-crm.yml ps -q app) 2>/dev/null || echo "unknown")
+          DB_STATUS=$(docker inspect --format='{{.State.Health.Status}}' $(docker compose -f docker-compose.employee-crm.yml ps -q db) 2>/dev/null || echo "unknown")
+          echo "Attempt $i/20: App: $APP_STATUS, DB: $DB_STATUS"
+          
+          if [ "$APP_STATUS" = "healthy" ] && [ "$DB_STATUS" = "healthy" ]; then
+            echo "✅ All services are healthy!"
             break
           fi
-          echo "⏳ Waiting for API... attempt $i/15"
-          if [ $i -eq 15 ]; then
-            echo "❌ API failed to start"
+          
+          if [ $i -eq 20 ]; then
+            echo "❌ Services failed to become healthy in time"
             echo "=== App Logs ==="
             docker compose -f docker-compose.employee-crm.yml logs app
             echo "=== Database Logs ==="
             docker compose -f docker-compose.employee-crm.yml logs db
+            exit 1
+          fi
+          sleep 10
+        done
+        
+        echo ""
+        echo "Verifying API endpoint..."
+        for i in {1..10}; do
+          if curl -f http://localhost:3000/ 2>/dev/null; then
+            echo "✅ API is responding!"
+            break
+          fi
+          echo "⏳ Waiting for API... attempt $i/10"
+          if [ $i -eq 10 ]; then
+            echo "❌ API failed to respond"
+            echo "=== App Logs ==="
+            docker compose -f docker-compose.employee-crm.yml logs app
             exit 1
           fi
           sleep 5
