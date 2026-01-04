@@ -1,0 +1,31 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  📚 Employee Management CRM API Endpoints
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔐 AUTHENTICATION:
+  POST /api/auth/register - Register new employee/admin
+  POST /api/auth/login    - Login and get JWT token
+
+👥 EMPLOYEES:
+  GET    /api/employees     - Get all employees (auth required)
+  GET    /api/employees/:id - Get employee by ID (auth required)
+  PUT    /api/employees/:id - Update employee (admin required)
+  DELETE /api/employees/:id - Delete employee (admin required)
+
+📊 PROJECTS:
+  GET    /api/projects     - Get all projects
+  POST   /api/projects     - Create project (admin required)
+  PUT    /api/projects/:id - Update project (admin required)
+  DELETE /api/projects/:id - Delete project (admin required)
+
+📄 DOCUMENTATION:
+  Swagger UI: http://localhost:3000/api-docs
+  OpenAPI Spec: http://localhost:3000/api-docs/swagger.json
+
+🐳 DOCKER:
+  Start services: docker-compose -f docker-compose.employee-crm.yml up -d
+  Stop services:  docker-compose -f docker-compose.employee-crm.yml down
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
