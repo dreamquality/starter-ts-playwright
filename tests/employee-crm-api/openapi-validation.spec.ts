@@ -1,13 +1,8 @@
-import { test, expect } from '@playwright/test';
-import { apiFixture, validateJsonSchema } from 'playwright-forge';
-import * as fs from 'fs';
-import * as path from 'path';
-
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+import { test, expect } from './employee-crm-test';
 
 test.describe('Employee CRM - OpenAPI Documentation', () => {
-  test('Verify Swagger UI is accessible', async ({ page }) => {
-    await page.goto(`${API_BASE_URL}/api-docs`);
+  test('Verify Swagger UI is accessible', async ({ page, apiBaseUrl }) => {
+    await page.goto(`${apiBaseUrl}/api-docs`);
     
     // Wait for Swagger UI to load
     await page.waitForSelector('.swagger-ui', { timeout: 10000 });
@@ -19,13 +14,13 @@ test.describe('Employee CRM - OpenAPI Documentation', () => {
     console.log('✅ Swagger UI is accessible and loaded');
   });
 
-  test('Fetch OpenAPI spec from API', async ({ request }) => {
+  test('Fetch OpenAPI spec from API', async ({ request, apiBaseUrl }) => {
     // Try to get the OpenAPI spec JSON
-    const response = await request.get(`${API_BASE_URL}/api-docs/swagger.json`);
+    const response = await request.get(`${apiBaseUrl}/api-docs/swagger.json`);
     
     if (response.status() === 404) {
       // Try alternative endpoint
-      const altResponse = await request.get(`${API_BASE_URL}/swagger.json`);
+      const altResponse = await request.get(`${apiBaseUrl}/swagger.json`);
       if (altResponse.ok()) {
         const spec = await altResponse.json();
         expect(spec).toHaveProperty('openapi');
@@ -49,8 +44,8 @@ test.describe('Employee CRM - OpenAPI Documentation', () => {
   });
 });
 
-apiFixture.describe('Employee CRM - Schema Validation', () => {
-  apiFixture('Validate registration response schema', async ({ api }) => {
+test.describe('Employee CRM - Schema Validation', () => {
+  test('Validate registration response schema', async ({ api, apiBaseUrl, validateJsonSchema }) => {
     const testUser = {
       email: `schema.test.${Date.now()}@example.com`,
       password: 'password123',
@@ -62,7 +57,7 @@ apiFixture.describe('Employee CRM - Schema Validation', () => {
       programmingLanguage: 'TypeScript'
     };
 
-    const response = await api.post(`${API_BASE_URL}/api/auth/register`, {
+    const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
       data: testUser
     });
 
@@ -83,7 +78,7 @@ apiFixture.describe('Employee CRM - Schema Validation', () => {
     console.log('✅ Registration response matches expected schema');
   });
 
-  apiFixture('Validate login response schema', async ({ api }) => {
+  test('Validate login response schema', async ({ api, apiBaseUrl, validateJsonSchema }) => {
     const testUser = {
       email: `login.schema.${Date.now()}@example.com`,
       password: 'password123',
@@ -96,10 +91,10 @@ apiFixture.describe('Employee CRM - Schema Validation', () => {
     };
 
     // Register first
-    await api.post(`${API_BASE_URL}/api/auth/register`, { data: testUser });
+    await api.post(`${apiBaseUrl}/api/auth/register`, { data: testUser });
 
     // Login
-    const loginResponse = await api.post(`${API_BASE_URL}/api/auth/login`, {
+    const loginResponse = await api.post(`${apiBaseUrl}/api/auth/login`, {
       data: {
         email: testUser.email,
         password: testUser.password
@@ -122,32 +117,12 @@ apiFixture.describe('Employee CRM - Schema Validation', () => {
     console.log('✅ Login response matches expected schema');
   });
 
-  apiFixture('Validate employee list response schema', async ({ api }) => {
+  test('Validate employee list response schema', async ({ api, apiBaseUrl, getAuthToken, validateJsonSchema }) => {
     // First register and login
-    const testUser = {
-      email: `employee.list.${Date.now()}@example.com`,
-      password: 'password123',
-      firstName: 'Employee',
-      lastName: 'List',
-      middleName: 'Test',
-      birthDate: '1988-06-10',
-      phone: '+5555555555',
-      programmingLanguage: 'Java'
-    };
-
-    await api.post(`${API_BASE_URL}/api/auth/register`, { data: testUser });
-
-    const loginResponse = await api.post(`${API_BASE_URL}/api/auth/login`, {
-      data: {
-        email: testUser.email,
-        password: testUser.password
-      }
-    });
-
-    const { token } = await loginResponse.json();
+    const token = await getAuthToken('employee');
 
     // Get employees list
-    const employeesResponse = await api.get(`${API_BASE_URL}/api/employees`, {
+    const employeesResponse = await api.get(`${apiBaseUrl}/api/employees`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -181,8 +156,8 @@ apiFixture.describe('Employee CRM - Schema Validation', () => {
     }
   });
 
-  apiFixture('Validate error response schema', async ({ api }) => {
-    const response = await api.post(`${API_BASE_URL}/api/auth/login`, {
+  test('Validate error response schema', async ({ api, apiBaseUrl, validateJsonSchema }) => {
+    const response = await api.post(`${apiBaseUrl}/api/auth/login`, {
       data: {
         email: 'invalid@example.com',
         password: 'wrongpassword'
@@ -207,7 +182,7 @@ apiFixture.describe('Employee CRM - Schema Validation', () => {
 });
 
 test.describe('Employee CRM - API Documentation Summary', () => {
-  test('Display available endpoints', () => {
+  test('Display available endpoints', ({ apiBaseUrl }) => {
     console.log(`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   📚 Employee Management CRM API Endpoints
@@ -230,8 +205,8 @@ test.describe('Employee CRM - API Documentation Summary', () => {
   DELETE /api/projects/:id - Delete project (admin required)
 
 📄 DOCUMENTATION:
-  Swagger UI: ${API_BASE_URL}/api-docs
-  OpenAPI Spec: ${API_BASE_URL}/api-docs/swagger.json
+  Swagger UI: ${apiBaseUrl}/api-docs
+  OpenAPI Spec: ${apiBaseUrl}/api-docs/swagger.json
 
 🐳 DOCKER:
   Start services: docker-compose -f docker-compose.employee-crm.yml up -d

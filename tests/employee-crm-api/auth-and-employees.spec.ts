@@ -1,41 +1,7 @@
-import { test, expect } from '@playwright/test';
-import { apiFixture, DataFactory, validateJsonSchema, OpenApiValidator } from 'playwright-forge';
-import * as fs from 'fs';
-import * as path from 'path';
+import { test, expect } from './employee-crm-test';
 
-const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
-
-// Helper to get auth token
-async function getAuthToken(api: any, role: 'admin' | 'employee' = 'employee') {
-  const testUser = {
-    email: role === 'admin' ? 'admin@test.com' : 'employee@test.com',
-    password: 'password123',
-    firstName: 'Test',
-    lastName: 'User',
-    middleName: 'Middle',
-    birthDate: '1990-01-01',
-    phone: '+1234567890',
-    programmingLanguage: 'JavaScript',
-    ...(role === 'admin' && { role: 'admin', secretWord: 'test_secret_word' })
-  };
-
-  // Try to register first (might fail if already exists, that's ok)
-  await api.post(`${API_BASE_URL}/api/auth/register`, { data: testUser });
-
-  // Login
-  const loginResponse = await api.post(`${API_BASE_URL}/api/auth/login`, {
-    data: {
-      email: testUser.email,
-      password: testUser.password
-    }
-  });
-
-  const loginData = await loginResponse.json();
-  return loginData.token;
-}
-
-apiFixture.describe('Employee CRM - Authentication API', () => {
-  apiFixture('Register new employee', async ({ api }) => {
+test.describe('Employee CRM - Authentication API', () => {
+  test('Register new employee', async ({ api, apiBaseUrl, dataFactory }) => {
     const testUser = {
       email: `test.${Date.now()}@example.com`,
       password: 'password123',
@@ -47,7 +13,7 @@ apiFixture.describe('Employee CRM - Authentication API', () => {
       programmingLanguage: 'TypeScript'
     };
 
-    const response = await api.post(`${API_BASE_URL}/api/auth/register`, {
+    const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
       data: testUser
     });
 
@@ -62,7 +28,7 @@ apiFixture.describe('Employee CRM - Authentication API', () => {
     console.log('✅ Employee registered successfully:', data.userId);
   });
 
-  apiFixture('Login with valid credentials', async ({ api }) => {
+  test('Login with valid credentials', async ({ api, apiBaseUrl }) => {
     const testUser = {
       email: `login.${Date.now()}@example.com`,
       password: 'password123',
@@ -75,10 +41,10 @@ apiFixture.describe('Employee CRM - Authentication API', () => {
     };
 
     // Register first
-    await api.post(`${API_BASE_URL}/api/auth/register`, { data: testUser });
+    await api.post(`${apiBaseUrl}/api/auth/register`, { data: testUser });
 
     // Then login
-    const loginResponse = await api.post(`${API_BASE_URL}/api/auth/login`, {
+    const loginResponse = await api.post(`${apiBaseUrl}/api/auth/login`, {
       data: {
         email: testUser.email,
         password: testUser.password
@@ -96,8 +62,8 @@ apiFixture.describe('Employee CRM - Authentication API', () => {
     console.log('✅ Login successful with JWT token');
   });
 
-  apiFixture('Fail login with invalid credentials', async ({ api }) => {
-    const response = await api.post(`${API_BASE_URL}/api/auth/login`, {
+  test('Fail login with invalid credentials', async ({ api, apiBaseUrl }) => {
+    const response = await api.post(`${apiBaseUrl}/api/auth/login`, {
       data: {
         email: 'nonexistent@example.com',
         password: 'wrongpassword'
@@ -111,7 +77,7 @@ apiFixture.describe('Employee CRM - Authentication API', () => {
     console.log('✅ Invalid login correctly rejected');
   });
 
-  apiFixture('Register admin with secret word', async ({ api }) => {
+  test('Register admin with secret word', async ({ api, apiBaseUrl }) => {
     const adminUser = {
       email: `admin.${Date.now()}@example.com`,
       password: 'adminpass123',
@@ -125,7 +91,7 @@ apiFixture.describe('Employee CRM - Authentication API', () => {
       secretWord: 'test_secret_word'
     };
 
-    const response = await api.post(`${API_BASE_URL}/api/auth/register`, {
+    const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
       data: adminUser
     });
 
@@ -137,11 +103,11 @@ apiFixture.describe('Employee CRM - Authentication API', () => {
   });
 });
 
-apiFixture.describe('Employee CRM - Employee Management API', () => {
-  apiFixture('Get all employees (authenticated)', async ({ api }) => {
-    const token = await getAuthToken(api, 'employee');
+test.describe('Employee CRM - Employee Management API', () => {
+  test('Get all employees (authenticated)', async ({ api, apiBaseUrl, getAuthToken }) => {
+    const token = await getAuthToken('employee');
 
-    const response = await api.get(`${API_BASE_URL}/api/employees`, {
+    const response = await api.get(`${apiBaseUrl}/api/employees`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -154,11 +120,11 @@ apiFixture.describe('Employee CRM - Employee Management API', () => {
     console.log(`✅ Retrieved ${data.length} employees`);
   });
 
-  apiFixture('Get employee by ID', async ({ api }) => {
-    const token = await getAuthToken(api, 'employee');
+  test('Get employee by ID', async ({ api, apiBaseUrl, getAuthToken }) => {
+    const token = await getAuthToken('employee');
 
     // First get all employees
-    const listResponse = await api.get(`${API_BASE_URL}/api/employees`, {
+    const listResponse = await api.get(`${apiBaseUrl}/api/employees`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -169,7 +135,7 @@ apiFixture.describe('Employee CRM - Employee Management API', () => {
       const employeeId = employees[0].id;
 
       // Get specific employee
-      const response = await api.get(`${API_BASE_URL}/api/employees/${employeeId}`, {
+      const response = await api.get(`${apiBaseUrl}/api/employees/${employeeId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -187,11 +153,11 @@ apiFixture.describe('Employee CRM - Employee Management API', () => {
     }
   });
 
-  apiFixture('Update employee information (admin)', async ({ api }) => {
-    const adminToken = await getAuthToken(api, 'admin');
+  test('Update employee information (admin)', async ({ api, apiBaseUrl, getAuthToken }) => {
+    const adminToken = await getAuthToken('admin');
 
     // Get all employees
-    const listResponse = await api.get(`${API_BASE_URL}/api/employees`, {
+    const listResponse = await api.get(`${apiBaseUrl}/api/employees`, {
       headers: {
         Authorization: `Bearer ${adminToken}`
       }
@@ -206,7 +172,7 @@ apiFixture.describe('Employee CRM - Employee Management API', () => {
         salary: 95000
       };
 
-      const response = await api.put(`${API_BASE_URL}/api/employees/${employeeId}`, {
+      const response = await api.put(`${apiBaseUrl}/api/employees/${employeeId}`, {
         data: updateData,
         headers: {
           Authorization: `Bearer ${adminToken}`
@@ -223,17 +189,17 @@ apiFixture.describe('Employee CRM - Employee Management API', () => {
     }
   });
 
-  apiFixture('Unauthorized access without token', async ({ api }) => {
-    const response = await api.get(`${API_BASE_URL}/api/employees`);
+  test('Unauthorized access without token', async ({ api, apiBaseUrl }) => {
+    const response = await api.get(`${apiBaseUrl}/api/employees`);
 
     expect(response.status()).toBe(401);
     console.log('✅ Unauthorized access correctly blocked');
   });
 });
 
-apiFixture.describe('Employee CRM - Data Factory Integration', () => {
-  apiFixture('Create employee with generated data', async ({ api }) => {
-    const generatedUser = DataFactory.user();
+test.describe('Employee CRM - Data Factory Integration', () => {
+  test('Create employee with generated data', async ({ api, apiBaseUrl, dataFactory }) => {
+    const generatedUser = dataFactory.user();
 
     const testUser = {
       email: generatedUser.email,
@@ -246,7 +212,7 @@ apiFixture.describe('Employee CRM - Data Factory Integration', () => {
       programmingLanguage: 'JavaScript'
     };
 
-    const response = await api.post(`${API_BASE_URL}/api/auth/register`, {
+    const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
       data: testUser
     });
 
@@ -257,9 +223,9 @@ apiFixture.describe('Employee CRM - Data Factory Integration', () => {
     console.log('✅ Employee created with generated data:', generatedUser.email);
   });
 
-  apiFixture('Bulk create employees with DataFactory', async ({ api }) => {
-    const users = DataFactory.array(() => {
-      const user = DataFactory.user();
+  test('Bulk create employees with DataFactory', async ({ api, apiBaseUrl, dataFactory }) => {
+    const users = dataFactory.array(() => {
+      const user = dataFactory.user();
       return {
         email: user.email,
         password: 'password123',
@@ -274,7 +240,7 @@ apiFixture.describe('Employee CRM - Data Factory Integration', () => {
 
     let created = 0;
     for (const user of users) {
-      const response = await api.post(`${API_BASE_URL}/api/auth/register`, {
+      const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
         data: user
       });
 
@@ -289,12 +255,12 @@ apiFixture.describe('Employee CRM - Data Factory Integration', () => {
 });
 
 test.describe('Employee CRM - Setup Validation', () => {
-  test('Verify API is accessible', async ({ request }) => {
-    const response = await request.get(`${API_BASE_URL}/health`);
+  test('Verify API is accessible', async ({ request, apiBaseUrl }) => {
+    const response = await request.get(`${apiBaseUrl}/health`);
     
     // If health endpoint doesn't exist, try root
     if (response.status() === 404) {
-      const rootResponse = await request.get(`${API_BASE_URL}/`);
+      const rootResponse = await request.get(`${apiBaseUrl}/`);
       expect([200, 404]).toContain(rootResponse.status());
       console.log('✅ API server is running');
     } else {
@@ -303,9 +269,9 @@ test.describe('Employee CRM - Setup Validation', () => {
     }
   });
 
-  test('Verify database connection', async ({ request }) => {
+  test('Verify database connection', async ({ request, apiBaseUrl }) => {
     // Try to access an endpoint that requires DB
-    const response = await request.post(`${API_BASE_URL}/api/auth/login`, {
+    const response = await request.post(`${apiBaseUrl}/api/auth/login`, {
       data: {
         email: 'test@example.com',
         password: 'test'
