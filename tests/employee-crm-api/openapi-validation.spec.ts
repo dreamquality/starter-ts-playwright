@@ -73,8 +73,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
         method: 'post',
         status: 200,
         responseBody: data,
-        warnOnly: true, // Don't fail if spec is not available
-        fallbackMode: 'warn'
+        fallbackMode: 'warn' // Log warning and skip validation if spec unavailable
       });
 
       if (validationResult.valid) {
@@ -130,7 +129,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
         method: 'post',
         status: 200,
         responseBody: loginData,
-        warnOnly: true,
+        
         fallbackMode: 'warn'
       });
 
@@ -176,7 +175,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
           method: 'get',
           status: 200,
           responseBody: employees,
-          warnOnly: true,
+          
           fallbackMode: 'warn'
         });
 
@@ -222,7 +221,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
         method: 'post',
         status: 401,
         responseBody: errorData,
-        warnOnly: true,
+        
         fallbackMode: 'warn'
       });
 

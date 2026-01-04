@@ -199,7 +199,7 @@ test.describe('Feature: Employee Management', () => {
 });
 
 test.describe('Feature: Data Generation', () => {
-  test('DataFactory - Create employee with generated test data', async ({ api, apiBaseUrl, dataFactory, cleanup }) => {
+  test('DataFactory - Create employee with generated test data', async ({ api, apiBaseUrl, dataFactory }) => {
     const generatedUser = dataFactory.user();
 
     const testUser = {
@@ -220,11 +220,6 @@ test.describe('Feature: Data Generation', () => {
     expect(response.ok()).toBeTruthy();
     const data = await response.json();
     expect(data).toHaveProperty('userId');
-
-    // Add cleanup task
-    cleanup.push(async () => {
-      console.log(`🧹 Cleanup: Would delete user ${generatedUser.email}`);
-    });
 
     console.log('✅ Employee created with generated data:', generatedUser.email);
   });

@@ -5,9 +5,7 @@ import {
   OpenApiValidator,
   validateResponse,
   SoftAssertions,
-  softAssertions,
-  cleanupFixture,
-  CleanupTask
+  softAssertions
 } from 'playwright-forge';
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
@@ -30,7 +28,7 @@ export type EmployeeCrmFixture = {
   apiBaseUrl: string;
   openapiSpecUrl: string;
   getAuthToken: (role?: 'admin' | 'employee') => Promise<string>;
-  cleanup: CleanupTask[];
+  cleanupTasks: (() => Promise<void>)[];
 };
 
 export const employeeCrmFixture: Fixtures<EmployeeCrmFixture, PlaywrightTestArgs> = {
@@ -114,8 +112,8 @@ export const employeeCrmFixture: Fixtures<EmployeeCrmFixture, PlaywrightTestArgs
     await use(getToken);
   },
 
-  cleanup: async ({}, use) => {
-    const tasks: CleanupTask[] = [];
+  cleanupTasks: async ({}, use) => {
+    const tasks: (() => Promise<void>)[] = [];
     await use(tasks);
     
     // Run cleanup tasks after test
