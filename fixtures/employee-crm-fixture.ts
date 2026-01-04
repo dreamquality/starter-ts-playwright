@@ -1,7 +1,17 @@
 import { Fixtures, PlaywrightTestArgs, APIRequestContext } from '@playwright/test';
-import { DataFactory, validateJsonSchema } from 'playwright-forge';
+import { 
+  DataFactory, 
+  validateJsonSchema, 
+  OpenApiValidator,
+  validateResponse,
+  SoftAssertions,
+  softAssertions,
+  cleanupFixture,
+  CleanupTask
+} from 'playwright-forge';
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
+const OPENAPI_SPEC_URL = 'https://dreamquality.github.io/employee-management-crm/openapi.json';
 
 interface ApiContext {
   get: APIRequestContext['get'];
@@ -15,8 +25,12 @@ export type EmployeeCrmFixture = {
   api: ApiContext;
   dataFactory: typeof DataFactory;
   validateJsonSchema: typeof validateJsonSchema;
+  openApiValidator: OpenApiValidator;
+  softAssertions: () => SoftAssertions;
   apiBaseUrl: string;
+  openapiSpecUrl: string;
   getAuthToken: (role?: 'admin' | 'employee') => Promise<string>;
+  cleanup: CleanupTask[];
 };
 
 export const employeeCrmFixture: Fixtures<EmployeeCrmFixture, PlaywrightTestArgs> = {
@@ -51,8 +65,21 @@ export const employeeCrmFixture: Fixtures<EmployeeCrmFixture, PlaywrightTestArgs
     await use(validateJsonSchema);
   },
 
+  openApiValidator: async ({}, use) => {
+    const validator = new OpenApiValidator();
+    await use(validator);
+  },
+
+  softAssertions: async ({}, use) => {
+    await use(softAssertions);
+  },
+
   apiBaseUrl: async ({}, use) => {
     await use(API_BASE_URL);
+  },
+
+  openapiSpecUrl: async ({}, use) => {
+    await use(OPENAPI_SPEC_URL);
   },
 
   getAuthToken: async ({ request }, use) => {
@@ -85,5 +112,19 @@ export const employeeCrmFixture: Fixtures<EmployeeCrmFixture, PlaywrightTestArgs
     };
 
     await use(getToken);
+  },
+
+  cleanup: async ({}, use) => {
+    const tasks: CleanupTask[] = [];
+    await use(tasks);
+    
+    // Run cleanup tasks after test
+    for (const task of tasks) {
+      try {
+        await task();
+      } catch (error) {
+        console.warn('Cleanup task failed:', error);
+      }
+    }
   }
 };

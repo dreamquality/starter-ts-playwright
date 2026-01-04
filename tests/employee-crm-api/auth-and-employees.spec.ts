@@ -1,7 +1,8 @@
 import { test, expect } from './employee-crm-test';
 
-test.describe('Employee CRM - Authentication API', () => {
-  test('Register new employee', async ({ api, apiBaseUrl, dataFactory }) => {
+test.describe('Feature: Authentication', () => {
+  test('User Registration - Employee can register with valid credentials', async ({ api, apiBaseUrl, dataFactory, softAssertions }) => {
+    const soft = softAssertions();
     const testUser = {
       email: `test.${Date.now()}@example.com`,
       password: 'password123',
@@ -17,18 +18,19 @@ test.describe('Employee CRM - Authentication API', () => {
       data: testUser
     });
 
-    expect(response.ok()).toBeTruthy();
+    // Use soft assertions for better error reporting
+    await soft.assert(() => expect(response.ok()).toBeTruthy(), 'Response should be successful');
     const data = await response.json();
-
-    // Validate response structure
-    expect(data).toHaveProperty('message');
-    expect(data).toHaveProperty('userId');
-    expect(data.userId).toBeGreaterThan(0);
+    await soft.assert(() => expect(data).toHaveProperty('message'), 'Response should have message');
+    await soft.assert(() => expect(data).toHaveProperty('userId'), 'Response should have userId');
+    await soft.assert(() => expect(data.userId).toBeGreaterThan(0), 'User ID should be positive');
+    soft.verify();
 
     console.log('✅ Employee registered successfully:', data.userId);
   });
 
-  test('Login with valid credentials', async ({ api, apiBaseUrl }) => {
+  test('User Login - Valid credentials return JWT token', async ({ api, apiBaseUrl, softAssertions }) => {
+    const soft = softAssertions();
     const testUser = {
       email: `login.${Date.now()}@example.com`,
       password: 'password123',
@@ -51,18 +53,17 @@ test.describe('Employee CRM - Authentication API', () => {
       }
     });
 
-    expect(loginResponse.ok()).toBeTruthy();
+    await soft.assert(() => expect(loginResponse.ok()).toBeTruthy(), 'Login should be successful');
     const loginData = await loginResponse.json();
-
-    // Validate JWT token is returned
-    expect(loginData).toHaveProperty('token');
-    expect(loginData.token).toBeTruthy();
-    expect(typeof loginData.token).toBe('string');
+    await soft.assert(() => expect(loginData).toHaveProperty('token'), 'Response should have token');
+    await soft.assert(() => expect(loginData.token).toBeTruthy(), 'Token should not be empty');
+    await soft.assert(() => expect(typeof loginData.token).toBe('string'), 'Token should be a string');
+    soft.verify();
 
     console.log('✅ Login successful with JWT token');
   });
 
-  test('Fail login with invalid credentials', async ({ api, apiBaseUrl }) => {
+  test('User Login - Invalid credentials are rejected', async ({ api, apiBaseUrl }) => {
     const response = await api.post(`${apiBaseUrl}/api/auth/login`, {
       data: {
         email: 'nonexistent@example.com',
@@ -77,7 +78,7 @@ test.describe('Employee CRM - Authentication API', () => {
     console.log('✅ Invalid login correctly rejected');
   });
 
-  test('Register admin with secret word', async ({ api, apiBaseUrl }) => {
+  test('Admin Registration - Admin can register with secret word', async ({ api, apiBaseUrl }) => {
     const adminUser = {
       email: `admin.${Date.now()}@example.com`,
       password: 'adminpass123',
@@ -103,8 +104,8 @@ test.describe('Employee CRM - Authentication API', () => {
   });
 });
 
-test.describe('Employee CRM - Employee Management API', () => {
-  test('Get all employees (authenticated)', async ({ api, apiBaseUrl, getAuthToken }) => {
+test.describe('Feature: Employee Management', () => {
+  test('List Employees - Authenticated user can retrieve all employees', async ({ api, apiBaseUrl, getAuthToken }) => {
     const token = await getAuthToken('employee');
 
     const response = await api.get(`${apiBaseUrl}/api/employees`, {
@@ -120,7 +121,7 @@ test.describe('Employee CRM - Employee Management API', () => {
     console.log(`✅ Retrieved ${data.length} employees`);
   });
 
-  test('Get employee by ID', async ({ api, apiBaseUrl, getAuthToken }) => {
+  test('Get Employee - Authenticated user can retrieve employee by ID', async ({ api, apiBaseUrl, getAuthToken }) => {
     const token = await getAuthToken('employee');
 
     // First get all employees
@@ -153,7 +154,7 @@ test.describe('Employee CRM - Employee Management API', () => {
     }
   });
 
-  test('Update employee information (admin)', async ({ api, apiBaseUrl, getAuthToken }) => {
+  test('Update Employee - Admin can update employee information', async ({ api, apiBaseUrl, getAuthToken }) => {
     const adminToken = await getAuthToken('admin');
 
     // Get all employees
@@ -189,7 +190,7 @@ test.describe('Employee CRM - Employee Management API', () => {
     }
   });
 
-  test('Unauthorized access without token', async ({ api, apiBaseUrl }) => {
+  test('Authorization - Unauthenticated access is denied', async ({ api, apiBaseUrl }) => {
     const response = await api.get(`${apiBaseUrl}/api/employees`);
 
     expect(response.status()).toBe(401);
@@ -197,8 +198,8 @@ test.describe('Employee CRM - Employee Management API', () => {
   });
 });
 
-test.describe('Employee CRM - Data Factory Integration', () => {
-  test('Create employee with generated data', async ({ api, apiBaseUrl, dataFactory }) => {
+test.describe('Feature: Data Generation', () => {
+  test('DataFactory - Create employee with generated test data', async ({ api, apiBaseUrl, dataFactory, cleanup }) => {
     const generatedUser = dataFactory.user();
 
     const testUser = {
@@ -220,10 +221,15 @@ test.describe('Employee CRM - Data Factory Integration', () => {
     const data = await response.json();
     expect(data).toHaveProperty('userId');
 
+    // Add cleanup task
+    cleanup.push(async () => {
+      console.log(`🧹 Cleanup: Would delete user ${generatedUser.email}`);
+    });
+
     console.log('✅ Employee created with generated data:', generatedUser.email);
   });
 
-  test('Bulk create employees with DataFactory', async ({ api, apiBaseUrl, dataFactory }) => {
+  test('DataFactory - Bulk create employees with generated data', async ({ api, apiBaseUrl, dataFactory }) => {
     const users = dataFactory.array(() => {
       const user = dataFactory.user();
       return {
@@ -254,8 +260,8 @@ test.describe('Employee CRM - Data Factory Integration', () => {
   });
 });
 
-test.describe('Employee CRM - Setup Validation', () => {
-  test('Verify API is accessible', async ({ request, apiBaseUrl }) => {
+test.describe('Feature: System Health', () => {
+  test('API Health - API endpoint is accessible', async ({ request, apiBaseUrl }) => {
     const response = await request.get(`${apiBaseUrl}/health`);
     
     // If health endpoint doesn't exist, try root
@@ -269,7 +275,7 @@ test.describe('Employee CRM - Setup Validation', () => {
     }
   });
 
-  test('Verify database connection', async ({ request, apiBaseUrl }) => {
+  test('Database Connectivity - Database connection is working', async ({ request, apiBaseUrl }) => {
     // Try to access an endpoint that requires DB
     const response = await request.post(`${apiBaseUrl}/api/auth/login`, {
       data: {
