@@ -74,12 +74,14 @@ This repository includes comprehensive E2E tests for the [Employee Management CR
 
 ### Quick Start with Employee CRM Tests
 
-1. **Start the application with Docker:**
+1. **Build and start the application with Docker:**
    ```bash
-   docker-compose -f docker-compose.employee-crm.yml up -d
+   docker-compose -f docker-compose.employee-crm.yml up -d --build
    ```
 
-2. **Wait for services to initialize (30-60 seconds)**
+2. **Wait for services to initialize**
+   - First run: 2-3 minutes (builds from source)
+   - Subsequent runs: 30-60 seconds
 
 3. **Run the tests:**
    ```bash

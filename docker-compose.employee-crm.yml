@@ -2,7 +2,9 @@ version: "3.8"
 
 services:
   app:
-    image: ghcr.io/dreamquality/employee-management-crm:latest
+    build:
+      context: https://github.com/dreamquality/employee-management-crm.git#main
+      dockerfile: Dockerfile
     container_name: employee_crm_app
     environment:
       - NODE_ENV=development

@@ -26,15 +26,18 @@ The employee-management-crm application runs in Docker containers. Make sure you
 From the repository root:
 
 ```bash
-# Start the Employee CRM application
-docker-compose -f docker-compose.employee-crm.yml up -d
+# Build and start the Employee CRM application
+# Note: First run will take longer as it builds from source
+docker-compose -f docker-compose.employee-crm.yml up -d --build
 
-# Wait for services to be ready (database migrations, seed data)
-# This usually takes 30-60 seconds
+# Wait for services to be ready (build, database migrations, seed data)
+# First run usually takes 2-3 minutes, subsequent runs take 30-60 seconds
 
 # Check if services are running
 docker-compose -f docker-compose.employee-crm.yml ps
 ```
+
+**Note**: The application is built from the [employee-management-crm](https://github.com/dreamquality/employee-management-crm) GitHub repository on first run.
 
 The application will be available at:
 - API: http://localhost:3000
@@ -180,6 +183,10 @@ docker-compose -f docker-compose.employee-crm.yml down -v
 
 ## Troubleshooting
 
+### First build takes a long time
+
+The first time you run `docker-compose up`, it builds the application from source which can take 2-3 minutes. This is normal. Subsequent runs will be much faster as Docker caches the build layers.
+
 ### Tests fail with connection errors
 
 1. Verify the application is running:
@@ -192,14 +199,30 @@ docker-compose -f docker-compose.employee-crm.yml down -v
    docker-compose -f docker-compose.employee-crm.yml logs app
    ```
 
-3. Restart services:
+3. Check database logs:
+   ```bash
+   docker-compose -f docker-compose.employee-crm.yml logs db
+   ```
+
+4. Restart services:
    ```bash
    docker-compose -f docker-compose.employee-crm.yml restart
    ```
 
 ### Database not ready
 
-The application needs time to run migrations and seed data. Wait 30-60 seconds after starting docker-compose before running tests.
+The application needs time to build, run migrations, and seed data. 
+- First run: Wait 2-3 minutes after starting docker-compose
+- Subsequent runs: Wait 30-60 seconds
+
+### Build failures
+
+If the build fails, try rebuilding from scratch:
+```bash
+docker-compose -f docker-compose.employee-crm.yml down -v
+docker-compose -f docker-compose.employee-crm.yml build --no-cache
+docker-compose -f docker-compose.employee-crm.yml up -d
+```
 
 ### Port already in use
 

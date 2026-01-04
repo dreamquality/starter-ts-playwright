@@ -39,20 +39,32 @@ jobs:
       
     - name: Start Employee CRM with Docker Compose
       run: |
-        docker-compose -f docker-compose.employee-crm.yml up -d
-        echo "Waiting for services to be ready..."
-        sleep 45
+        echo "Building and starting Employee CRM services..."
+        docker-compose -f docker-compose.employee-crm.yml up -d --build
+        echo "Services started. Waiting for application to be ready..."
+        sleep 60
         
     - name: Verify services are running
       run: |
+        echo "Checking Docker containers status..."
         docker-compose -f docker-compose.employee-crm.yml ps
+        echo ""
+        echo "Checking if database is ready..."
+        docker-compose -f docker-compose.employee-crm.yml exec -T db pg_isready -U postgres || echo "Database not ready yet"
+        echo ""
         echo "Checking API health..."
-        for i in {1..10}; do
+        for i in {1..15}; do
           if curl -f http://localhost:3000/ 2>/dev/null; then
-            echo "API is ready!"
+            echo "✅ API is ready!"
             break
           fi
-          echo "Waiting for API... attempt $i/10"
+          echo "⏳ Waiting for API... attempt $i/15"
+          if [ $i -eq 15 ]; then
+            echo "❌ API failed to start"
+            echo "=== App Logs ==="
+            docker-compose -f docker-compose.employee-crm.yml logs app
+            exit 1
+          fi
           sleep 5
         done
         
