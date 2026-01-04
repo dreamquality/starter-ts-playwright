@@ -1,10 +1,18 @@
-import { Fixtures, PlaywrightTestArgs } from '@playwright/test';
-import { apiFixture, DataFactory, validateJsonSchema } from 'playwright-forge';
+import { Fixtures, PlaywrightTestArgs, APIRequestContext } from '@playwright/test';
+import { DataFactory, validateJsonSchema } from 'playwright-forge';
 
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000';
 
+interface ApiContext {
+  get: APIRequestContext['get'];
+  post: APIRequestContext['post'];
+  put: APIRequestContext['put'];
+  delete: APIRequestContext['delete'];
+  patch: APIRequestContext['patch'];
+}
+
 export type EmployeeCrmFixture = {
-  api: any;
+  api: ApiContext;
   dataFactory: typeof DataFactory;
   validateJsonSchema: typeof validateJsonSchema;
   apiBaseUrl: string;
