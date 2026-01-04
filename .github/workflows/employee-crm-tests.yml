@@ -55,16 +55,24 @@ jobs:
         docker compose -f docker-compose.employee-crm.yml ps
         echo ""
         
-        echo "Checking that containers are running..."
-        APP_RUNNING=$(docker compose -f docker-compose.employee-crm.yml ps -q app)
-        DB_RUNNING=$(docker compose -f docker-compose.employee-crm.yml ps -q db)
+        echo "Waiting for containers to stabilize after startup..."
+        sleep 10
         
-        if [ -z "$APP_RUNNING" ] || [ -z "$DB_RUNNING" ]; then
-          echo "❌ Services failed to start"
-          echo "=== App Logs ==="
-          docker compose -f docker-compose.employee-crm.yml logs app || true
-          echo "=== Database Logs ==="
-          docker compose -f docker-compose.employee-crm.yml logs db || true
+        echo "Checking that containers are running..."
+        APP_STATUS=$(docker inspect employee_crm_app --format='{{.State.Status}}' 2>/dev/null || echo "not_found")
+        DB_STATUS=$(docker inspect employee_crm_db --format='{{.State.Status}}' 2>/dev/null || echo "not_found")
+        
+        echo "App container status: $APP_STATUS"
+        echo "DB container status: $DB_STATUS"
+        
+        if [ "$APP_STATUS" != "running" ] || [ "$DB_STATUS" != "running" ]; then
+          echo "❌ Services are not running properly"
+          echo "=== App Container Status ==="
+          docker inspect employee_crm_app 2>/dev/null || echo "Container not found"
+          echo "=== App Logs (last 100 lines) ==="
+          docker compose -f docker-compose.employee-crm.yml logs --tail=100 app || true
+          echo "=== Database Logs (last 50 lines) ==="
+          docker compose -f docker-compose.employee-crm.yml logs --tail=50 db || true
           exit 1
         fi
         
@@ -76,6 +84,18 @@ jobs:
             echo "✅ API is responding!"
             exit 0
           fi
+          
+          # Check if container is still running every 10 attempts
+          if [ $((i % 10)) -eq 0 ]; then
+            APP_STATUS=$(docker inspect employee_crm_app --format='{{.State.Status}}' 2>/dev/null || echo "not_found")
+            if [ "$APP_STATUS" != "running" ]; then
+              echo "❌ App container stopped running during startup"
+              echo "=== App Logs ==="
+              docker compose -f docker-compose.employee-crm.yml logs app
+              exit 1
+            fi
+          fi
+          
           echo "⏳ Waiting for API (migrations + seeding + startup)... attempt $i/40"
           if [ $i -eq 40 ]; then
             echo "❌ API failed to respond in 3.5 minutes"
