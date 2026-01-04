@@ -30,13 +30,13 @@ From the repository root:
 git clone https://github.com/dreamquality/employee-management-crm.git /tmp/employee-crm
 
 # Build and start the Employee CRM application
-docker-compose -f docker-compose.employee-crm.yml up -d --build
+docker compose -f docker compose.employee-crm.yml up -d --build
 
 # Wait for services to be ready (build, database migrations, seed data)
 # First run usually takes 2-3 minutes, subsequent runs take 30-60 seconds
 
 # Check if services are running
-docker-compose -f docker-compose.employee-crm.yml ps
+docker compose -f docker compose.employee-crm.yml ps
 ```
 
 **Note**: The application is built from a local clone of the [employee-management-crm](https://github.com/dreamquality/employee-management-crm) repository.
@@ -177,60 +177,60 @@ API_BASE_URL=http://your-api:3000 npx playwright test tests/employee-crm-api/
 
 ```bash
 # Stop and remove containers
-docker-compose -f docker-compose.employee-crm.yml down
+docker compose -f docker compose.employee-crm.yml down
 
 # Stop and remove containers + volumes (clean state)
-docker-compose -f docker-compose.employee-crm.yml down -v
+docker compose -f docker compose.employee-crm.yml down -v
 ```
 
 ## Troubleshooting
 
 ### First build takes a long time
 
-The first time you run `docker-compose up`, it builds the application from source which can take 2-3 minutes. This is normal. Subsequent runs will be much faster as Docker caches the build layers.
+The first time you run `docker compose up`, it builds the application from source which can take 2-3 minutes. This is normal. Subsequent runs will be much faster as Docker caches the build layers.
 
 ### Tests fail with connection errors
 
 1. Verify the application is running:
    ```bash
-   docker-compose -f docker-compose.employee-crm.yml ps
+   docker compose -f docker compose.employee-crm.yml ps
    ```
 
 2. Check application logs:
    ```bash
-   docker-compose -f docker-compose.employee-crm.yml logs app
+   docker compose -f docker compose.employee-crm.yml logs app
    ```
 
 3. Check database logs:
    ```bash
-   docker-compose -f docker-compose.employee-crm.yml logs db
+   docker compose -f docker compose.employee-crm.yml logs db
    ```
 
 4. Restart services:
    ```bash
-   docker-compose -f docker-compose.employee-crm.yml restart
+   docker compose -f docker compose.employee-crm.yml restart
    ```
 
 ### Database not ready
 
 The application needs time to build, run migrations, and seed data. 
-- First run: Wait 2-3 minutes after starting docker-compose
+- First run: Wait 2-3 minutes after starting docker compose
 - Subsequent runs: Wait 30-60 seconds
 
 ### Build failures
 
 If the build fails, try rebuilding from scratch:
 ```bash
-docker-compose -f docker-compose.employee-crm.yml down -v
-docker-compose -f docker-compose.employee-crm.yml build --no-cache
-docker-compose -f docker-compose.employee-crm.yml up -d
+docker compose -f docker compose.employee-crm.yml down -v
+docker compose -f docker compose.employee-crm.yml build --no-cache
+docker compose -f docker compose.employee-crm.yml up -d
 ```
 
 ### Port already in use
 
 If port 3000 or 5432 is already in use:
 ```bash
-# Change ports in docker-compose.employee-crm.yml
+# Change ports in docker compose.employee-crm.yml
 ports:
   - "3001:3000"  # Change from 3000 to 3001
 ```

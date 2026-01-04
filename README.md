@@ -81,7 +81,7 @@ This repository includes comprehensive E2E tests for the [Employee Management CR
 
 2. **Build and start the application with Docker:**
    ```bash
-   docker-compose -f docker-compose.employee-crm.yml up -d --build
+   docker compose -f docker compose.employee-crm.yml up -d --build
    ```
 
 3. **Wait for services to initialize**
