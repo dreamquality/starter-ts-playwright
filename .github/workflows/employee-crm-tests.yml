@@ -54,8 +54,8 @@ jobs:
         echo "Checking Docker containers status..."
         docker compose -f docker-compose.employee-crm.yml ps
         echo ""
-        echo "Checking if database is ready..."
-        docker compose -f docker-compose.employee-crm.yml exec -T db pg_isready -U postgres || echo "⏳ Database still starting up..."
+        echo "Waiting for services to be fully ready..."
+        sleep 10
         echo ""
         echo "Checking API health..."
         for i in {1..15}; do
@@ -68,6 +68,8 @@ jobs:
             echo "❌ API failed to start"
             echo "=== App Logs ==="
             docker compose -f docker-compose.employee-crm.yml logs app
+            echo "=== Database Logs ==="
+            docker compose -f docker-compose.employee-crm.yml logs db
             exit 1
           fi
           sleep 5
