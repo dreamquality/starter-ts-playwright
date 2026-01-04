@@ -46,8 +46,8 @@ jobs:
       run: |
         echo "Building and starting Employee CRM services..."
         docker compose -f docker-compose.employee-crm.yml up -d --build
-        echo "Services started. Waiting for initial setup (migrations, seeding)..."
-        sleep 120
+        echo "Services started. Waiting for initial build to complete..."
+        sleep 60
         
     - name: Verify services are running
       run: |
@@ -79,7 +79,7 @@ jobs:
         echo "✅ Containers are running"
         echo ""
         echo "Verifying API endpoint (checking migrations, seeding, and app startup)..."
-        for i in {1..40}; do
+        for i in {1..60}; do
           if curl -f http://localhost:3000/ 2>/dev/null; then
             echo "✅ API is responding!"
             exit 0
@@ -96,9 +96,9 @@ jobs:
             fi
           fi
           
-          echo "⏳ Waiting for API (migrations + seeding + startup)... attempt $i/40"
-          if [ $i -eq 40 ]; then
-            echo "❌ API failed to respond in 3.5 minutes"
+          echo "⏳ Waiting for API (migrations + seeding + startup)... attempt $i/60"
+          if [ $i -eq 60 ]; then
+            echo "❌ API failed to respond in 5 minutes"
             echo "=== App Container Status ==="
             docker compose -f docker-compose.employee-crm.yml ps app
             echo "=== App Logs (showing migration/seeding/startup) ==="

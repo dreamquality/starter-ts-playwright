@@ -22,7 +22,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "echo '=== Running DB Migrations ===' && npx sequelize-cli db:migrate && echo '=== Running DB Seeding ===' && npx sequelize-cli db:seed:all && echo '=== Starting Application ===' && npm run dev"
+    command: sh -c "echo '=== Running DB Migrations ===' && npx sequelize-cli db:migrate && echo '=== Running DB Seeding ===' && npx sequelize-cli db:seed:all && echo '=== Starting Application ===' && node app.js"
 
   db:
     image: postgres:16
