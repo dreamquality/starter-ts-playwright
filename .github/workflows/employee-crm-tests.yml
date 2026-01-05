@@ -80,7 +80,7 @@ jobs:
         echo ""
         echo "Verifying API endpoint (checking migrations, seeding, and app startup)..."
         for i in {1..60}; do
-          if curl -f http://localhost:3000/ 2>/dev/null; then
+          if curl -f http://localhost:3000/api-docs 2>/dev/null; then
             echo "✅ API is responding!"
             exit 0
           fi
