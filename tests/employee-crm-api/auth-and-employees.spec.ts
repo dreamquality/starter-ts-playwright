@@ -14,7 +14,7 @@ test.describe('Feature: Authentication', () => {
       programmingLanguage: 'TypeScript'
     };
 
-    const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
+    const response = await api.post(`${apiBaseUrl}/register`, {
       data: testUser
     });
 
@@ -43,10 +43,10 @@ test.describe('Feature: Authentication', () => {
     };
 
     // Register first
-    await api.post(`${apiBaseUrl}/api/auth/register`, { data: testUser });
+    await api.post(`${apiBaseUrl}/register`, { data: testUser });
 
     // Then login
-    const loginResponse = await api.post(`${apiBaseUrl}/api/auth/login`, {
+    const loginResponse = await api.post(`${apiBaseUrl}/login`, {
       data: {
         email: testUser.email,
         password: testUser.password
@@ -64,7 +64,7 @@ test.describe('Feature: Authentication', () => {
   });
 
   test('User Login - Invalid credentials are rejected', async ({ api, apiBaseUrl }) => {
-    const response = await api.post(`${apiBaseUrl}/api/auth/login`, {
+    const response = await api.post(`${apiBaseUrl}/login`, {
       data: {
         email: 'nonexistent@example.com',
         password: 'wrongpassword'
@@ -92,7 +92,7 @@ test.describe('Feature: Authentication', () => {
       secretWord: 'test_secret_word'
     };
 
-    const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
+    const response = await api.post(`${apiBaseUrl}/register`, {
       data: adminUser
     });
 
@@ -108,7 +108,7 @@ test.describe('Feature: Employee Management', () => {
   test('List Employees - Authenticated user can retrieve all employees', async ({ api, apiBaseUrl, getAuthToken }) => {
     const token = await getAuthToken('employee');
 
-    const response = await api.get(`${apiBaseUrl}/api/employees`, {
+    const response = await api.get(`${apiBaseUrl}/users`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -125,7 +125,7 @@ test.describe('Feature: Employee Management', () => {
     const token = await getAuthToken('employee');
 
     // First get all employees
-    const listResponse = await api.get(`${apiBaseUrl}/api/employees`, {
+    const listResponse = await api.get(`${apiBaseUrl}/users`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -136,7 +136,7 @@ test.describe('Feature: Employee Management', () => {
       const employeeId = employees[0].id;
 
       // Get specific employee
-      const response = await api.get(`${apiBaseUrl}/api/employees/${employeeId}`, {
+      const response = await api.get(`${apiBaseUrl}/users/${employeeId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -158,7 +158,7 @@ test.describe('Feature: Employee Management', () => {
     const adminToken = await getAuthToken('admin');
 
     // Get all employees
-    const listResponse = await api.get(`${apiBaseUrl}/api/employees`, {
+    const listResponse = await api.get(`${apiBaseUrl}/users`, {
       headers: {
         Authorization: `Bearer ${adminToken}`
       }
@@ -173,7 +173,7 @@ test.describe('Feature: Employee Management', () => {
         salary: 95000
       };
 
-      const response = await api.put(`${apiBaseUrl}/api/employees/${employeeId}`, {
+      const response = await api.put(`${apiBaseUrl}/users/${employeeId}`, {
         data: updateData,
         headers: {
           Authorization: `Bearer ${adminToken}`
@@ -191,7 +191,7 @@ test.describe('Feature: Employee Management', () => {
   });
 
   test('Authorization - Unauthenticated access is denied', async ({ api, apiBaseUrl }) => {
-    const response = await api.get(`${apiBaseUrl}/api/employees`);
+    const response = await api.get(`${apiBaseUrl}/users`);
 
     expect(response.status()).toBe(401);
     console.log('✅ Unauthorized access correctly blocked');
@@ -213,7 +213,7 @@ test.describe('Feature: Data Generation', () => {
       programmingLanguage: 'JavaScript'
     };
 
-    const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
+    const response = await api.post(`${apiBaseUrl}/register`, {
       data: testUser
     });
 
@@ -241,7 +241,7 @@ test.describe('Feature: Data Generation', () => {
 
     let created = 0;
     for (const user of users) {
-      const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
+      const response = await api.post(`${apiBaseUrl}/register`, {
         data: user
       });
 
@@ -272,7 +272,7 @@ test.describe('Feature: System Health', () => {
 
   test('Database Connectivity - Database connection is working', async ({ request, apiBaseUrl }) => {
     // Try to access an endpoint that requires DB
-    const response = await request.post(`${apiBaseUrl}/api/auth/login`, {
+    const response = await request.post(`${apiBaseUrl}/login`, {
       data: {
         email: 'test@example.com',
         password: 'test'

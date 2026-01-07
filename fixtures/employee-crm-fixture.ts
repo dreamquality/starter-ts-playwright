@@ -95,10 +95,10 @@ export const employeeCrmFixture: Fixtures<EmployeeCrmFixture, PlaywrightTestArgs
       };
 
       // Try to register first (might fail if already exists, that's ok)
-      await request.post(`${API_BASE_URL}/api/auth/register`, { data: testUser });
+      await request.post(`${API_BASE_URL}/register`, { data: testUser });
 
       // Login
-      const loginResponse = await request.post(`${API_BASE_URL}/api/auth/login`, {
+      const loginResponse = await request.post(`${API_BASE_URL}/login`, {
         data: {
           email: testUser.email,
           password: testUser.password

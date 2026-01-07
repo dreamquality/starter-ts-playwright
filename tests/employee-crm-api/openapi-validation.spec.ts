@@ -58,7 +58,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
       programmingLanguage: 'TypeScript'
     };
 
-    const response = await api.post(`${apiBaseUrl}/api/auth/register`, {
+    const response = await api.post(`${apiBaseUrl}/register`, {
       data: testUser
     });
 
@@ -69,7 +69,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
     try {
       const validationResult = await validateResponse({
         spec: openapiSpecUrl,
-        path: '/api/auth/register',
+        path: '/register',
         method: 'post',
         status: 200,
         responseBody: data,
@@ -108,10 +108,10 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
     };
 
     // Register first
-    await api.post(`${apiBaseUrl}/api/auth/register`, { data: testUser });
+    await api.post(`${apiBaseUrl}/register`, { data: testUser });
 
     // Login
-    const loginResponse = await api.post(`${apiBaseUrl}/api/auth/login`, {
+    const loginResponse = await api.post(`${apiBaseUrl}/login`, {
       data: {
         email: testUser.email,
         password: testUser.password
@@ -125,7 +125,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
     try {
       const validationResult = await validateResponse({
         spec: openapiSpecUrl,
-        path: '/api/auth/login',
+        path: '/login',
         method: 'post',
         status: 200,
         responseBody: loginData,
@@ -155,7 +155,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
     const token = await getAuthToken('employee');
 
     // Get employees list
-    const employeesResponse = await api.get(`${apiBaseUrl}/api/employees`, {
+    const employeesResponse = await api.get(`${apiBaseUrl}/users`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -171,7 +171,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
       try {
         const validationResult = await validateResponse({
           spec: openapiSpecUrl,
-          path: '/api/employees',
+          path: '/users',
           method: 'get',
           status: 200,
           responseBody: employees,
@@ -203,7 +203,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
   });
 
   test('Error Response - Validates against OpenAPI schema', async ({ api, apiBaseUrl, openapiSpecUrl }) => {
-    const response = await api.post(`${apiBaseUrl}/api/auth/login`, {
+    const response = await api.post(`${apiBaseUrl}/login`, {
       data: {
         email: 'invalid@example.com',
         password: 'wrongpassword'
@@ -217,7 +217,7 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
     try {
       const validationResult = await validateResponse({
         spec: openapiSpecUrl,
-        path: '/api/auth/login',
+        path: '/login',
         method: 'post',
         status: 401,
         responseBody: errorData,
@@ -251,14 +251,14 @@ test.describe('Feature: API Documentation Reference', () => {
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🔐 AUTHENTICATION:
-  POST /api/auth/register - Register new employee/admin
-  POST /api/auth/login    - Login and get JWT token
+  POST /register - Register new employee/admin
+  POST /login    - Login and get JWT token
 
 👥 EMPLOYEES:
-  GET    /api/employees     - Get all employees (auth required)
-  GET    /api/employees/:id - Get employee by ID (auth required)
-  PUT    /api/employees/:id - Update employee (admin required)
-  DELETE /api/employees/:id - Delete employee (admin required)
+  GET    /users     - Get all employees (auth required)
+  GET    /users/:id - Get employee by ID (auth required)
+  PUT    /users/:id - Update employee (admin required)
+  DELETE /users/:id - Delete employee (admin required)
 
 📊 PROJECTS:
   GET    /api/projects     - Get all projects
