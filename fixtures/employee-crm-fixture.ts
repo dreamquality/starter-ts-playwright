@@ -1,4 +1,4 @@
-import { Fixtures, PlaywrightTestArgs, APIRequestContext } from '@playwright/test';
+import { APIRequestContext } from '@playwright/test';
 import { 
   DataFactory, 
   validateJsonSchema, 
@@ -31,7 +31,7 @@ export type EmployeeCrmFixture = {
   cleanupTasks: (() => Promise<void>)[];
 };
 
-export const employeeCrmFixture: Fixtures<EmployeeCrmFixture, PlaywrightTestArgs> = {
+export const employeeCrmFixture = {
   api: async ({ request }, use) => {
     // Create API context from playwright-forge
     const apiContext = {
