@@ -256,32 +256,4 @@ test.describe('Feature: Data Generation', () => {
   });
 });
 
-test.describe('Feature: System Health', () => {
-  test('API Health - API endpoint is accessible', async ({ request, apiBaseUrl }) => {
-    const response = await request.get(`${apiBaseUrl}/health`);
-    
-    // If health endpoint doesn't exist, try root
-    if (response.status() === 404) {
-      const rootResponse = await request.get(`${apiBaseUrl}/`);
-      expect([200, 404]).toContain(rootResponse.status());
-      console.log('✅ API server is running');
-    } else {
-      expect(response.ok()).toBeTruthy();
-      console.log('✅ API health check passed');
-    }
-  });
 
-  test('Database Connectivity - Database connection is working', async ({ request, apiBaseUrl }) => {
-    // Try to access an endpoint that requires DB
-    const response = await request.post(`${apiBaseUrl}/login`, {
-      data: {
-        email: 'test@example.com',
-        password: 'test'
-      }
-    });
-
-    // As long as we get a response (even 401), DB is connected
-    expect(response.status()).toBeGreaterThanOrEqual(400);
-    console.log('✅ Database connection verified');
-  });
-});

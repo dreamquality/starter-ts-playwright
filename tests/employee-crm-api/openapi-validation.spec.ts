@@ -244,38 +244,4 @@ test.describe('Feature: OpenAPI Schema Validation', () => {
   });
 });
 
-test.describe('Feature: API Documentation Reference', () => {
-  test('API Endpoints - Display available endpoints summary', ({ apiBaseUrl }) => {
-    console.log(`
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  📚 Employee Management CRM API Endpoints
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-🔐 AUTHENTICATION:
-  POST /register - Register new employee/admin
-  POST /login    - Login and get JWT token
-
-👥 EMPLOYEES:
-  GET    /users     - Get all employees (auth required)
-  GET    /users/:id - Get employee by ID (auth required)
-  PUT    /users/:id - Update employee (admin required)
-  DELETE /users/:id - Delete employee (admin required)
-
-📊 PROJECTS:
-  GET    /api/projects     - Get all projects
-  POST   /api/projects     - Create project (admin required)
-  PUT    /api/projects/:id - Update project (admin required)
-  DELETE /api/projects/:id - Delete project (admin required)
-
-📄 DOCUMENTATION:
-  Swagger UI: ${apiBaseUrl}/api-docs
-  OpenAPI Spec: ${apiBaseUrl}/api-docs/swagger.json
-
-🐳 DOCKER:
-  Start services: docker-compose -f docker-compose.employee-crm.yml up -d
-  Stop services:  docker-compose -f docker-compose.employee-crm.yml down
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    `);
-  });
-});
