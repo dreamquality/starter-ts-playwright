@@ -1,4 +1,0 @@
-"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","30115","Testing search on playwright documentation page","chromium","Sun Nov 02 14:18:51 UTC 2025","broken","Sun Nov 02 14:19:21 UTC 2025","","test-search.spec.ts","",""
-"","30162","Testing search on playwright documentation page","firefox","Sun Nov 02 14:20:26 UTC 2025","broken","Sun Nov 02 14:20:56 UTC 2025","","test-search.spec.ts","",""
-"","30347","Testing search on playwright documentation page","webkit","Sun Nov 02 14:22:02 UTC 2025","broken","Sun Nov 02 14:22:32 UTC 2025","","test-search.spec.ts","",""
