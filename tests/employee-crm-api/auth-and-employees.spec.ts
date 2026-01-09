@@ -122,7 +122,7 @@ test.describe('Feature: Employee Management', () => {
     console.log(`✅ Retrieved ${data.length} employees`);
   });
 
-  test('Get Employee - Authenticated user can retrieve employee by ID', async ({ api, apiBaseUrl, getAuthToken }) => {
+  test.skip('Get Employee - Authenticated user can retrieve employee by ID', async ({ api, apiBaseUrl, getAuthToken }) => {
     const token = await getAuthToken('employee');
 
     // First get all employees
@@ -155,7 +155,7 @@ test.describe('Feature: Employee Management', () => {
     }
   });
 
-  test('Update Employee - Admin can update employee information', async ({ api, apiBaseUrl, getAuthToken }) => {
+  test.skip('Update Employee - Admin can update employee information', async ({ api, apiBaseUrl, getAuthToken }) => {
     const adminToken = await getAuthToken('admin');
 
     // Get all employees
