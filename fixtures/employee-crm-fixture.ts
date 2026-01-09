@@ -32,7 +32,7 @@ export type EmployeeCrmFixture = {
 };
 
 export const employeeCrmFixture = {
-  api: async ({ request }, use) => {
+  api: async ({ request }: any, use: any) => {
     // Create API context from playwright-forge
     const apiContext = {
       get: async (url: string, options?: any) => {
@@ -55,32 +55,32 @@ export const employeeCrmFixture = {
     await use(apiContext);
   },
 
-  dataFactory: async ({}, use) => {
+  dataFactory: async ({}: any, use: any) => {
     await use(DataFactory);
   },
 
-  validateJsonSchema: async ({}, use) => {
+  validateJsonSchema: async ({}: any, use: any) => {
     await use(validateJsonSchema);
   },
 
-  openApiValidator: async ({}, use) => {
+  openApiValidator: async ({}: any, use: any) => {
     const validator = new OpenApiValidator();
     await use(validator);
   },
 
-  softAssertions: async ({}, use) => {
+  softAssertions: async ({}: any, use: any) => {
     await use(softAssertions);
   },
 
-  apiBaseUrl: async ({}, use) => {
+  apiBaseUrl: async ({}: any, use: any) => {
     await use(API_BASE_URL);
   },
 
-  openapiSpecUrl: async ({}, use) => {
+  openapiSpecUrl: async ({}: any, use: any) => {
     await use(OPENAPI_SPEC_URL);
   },
 
-  getAuthToken: async ({ request }, use) => {
+  getAuthToken: async ({ request }: any, use: any) => {
     const getToken = async (role: 'admin' | 'employee' = 'employee'): Promise<string> => {
       const testUser = {
         email: role === 'admin' ? 'admin@test.com' : 'employee@test.com',
@@ -112,7 +112,7 @@ export const employeeCrmFixture = {
     await use(getToken);
   },
 
-  cleanupTasks: async ({}, use) => {
+  cleanupTasks: async ({}: any, use: any) => {
     const tasks: (() => Promise<void>)[] = [];
     await use(tasks);
     
