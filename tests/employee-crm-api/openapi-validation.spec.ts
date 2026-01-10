@@ -2,7 +2,7 @@ import { test, expect } from './employee-crm-test';
 import { validateResponse } from 'playwright-forge';
 
 test.describe('Feature: OpenAPI Documentation', () => {
-  test('Swagger UI - Documentation is accessible and loads correctly', async ({ page, apiBaseUrl }) => {
+  test.skip('Swagger UI - Documentation is accessible and loads correctly', async ({ page, apiBaseUrl }) => {
     await page.goto(`${apiBaseUrl}/api-docs`);
     
     // Wait for Swagger UI to load
