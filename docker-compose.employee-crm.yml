@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: /tmp/employee-crm
+      dockerfile: Dockerfile
+    container_name: employee_crm_app
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=my_database
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - JWT_SECRET=test_jwt_secret_for_e2e
+      - SECRET_WORD=test_secret_word
+      - CORS_ORIGIN=http://localhost:5173
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "echo '=== Running DB Migrations ===' && npx sequelize-cli db:migrate && echo '=== Running DB Seeding ===' && npx sequelize-cli db:seed:all && echo '=== Starting Application ===' && node app.js"
+
+  db:
+    image: postgres:16
+    container_name: employee_crm_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=my_database
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    tmpfs:
+      - /var/lib/postgresql/data

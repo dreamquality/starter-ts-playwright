@@ -1,0 +1,139 @@
+name: Employee CRM E2E Tests
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'tests/employee-crm-api/**'
+      - 'docker-compose.employee-crm.yml'
+      - '.github/workflows/employee-crm-tests.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'tests/employee-crm-api/**'
+      - 'docker-compose.employee-crm.yml'
+      - '.github/workflows/employee-crm-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v6
+      with:
+        node-version: '20.x'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+      
+    - name: Clone Employee CRM repository
+      run: |
+        echo "Cloning employee-management-crm repository..."
+        git clone --depth 1 https://github.com/dreamquality/employee-management-crm.git /tmp/employee-crm
+        
+    - name: Start Employee CRM with Docker Compose
+      run: |
+        echo "Building and starting Employee CRM services..."
+        docker compose -f docker-compose.employee-crm.yml up -d --build
+        echo "Services started. Waiting for initial build to complete..."
+        sleep 60
+        
+    - name: Verify services are running
+      run: |
+        echo "Checking Docker containers status..."
+        docker compose -f docker-compose.employee-crm.yml ps
+        echo ""
+        
+        echo "Waiting for containers to stabilize after startup..."
+        sleep 10
+        
+        echo "Checking that containers are running..."
+        APP_STATUS=$(docker inspect employee_crm_app --format='{{.State.Status}}' 2>/dev/null || echo "not_found")
+        DB_STATUS=$(docker inspect employee_crm_db --format='{{.State.Status}}' 2>/dev/null || echo "not_found")
+        
+        echo "App container status: $APP_STATUS"
+        echo "DB container status: $DB_STATUS"
+        
+        if [ "$APP_STATUS" != "running" ] || [ "$DB_STATUS" != "running" ]; then
+          echo "❌ Services are not running properly"
+          echo "=== App Container Status ==="
+          docker inspect employee_crm_app 2>/dev/null || echo "Container not found"
+          echo "=== App Logs (last 100 lines) ==="
+          docker compose -f docker-compose.employee-crm.yml logs --tail=100 app || true
+          echo "=== Database Logs (last 50 lines) ==="
+          docker compose -f docker-compose.employee-crm.yml logs --tail=50 db || true
+          exit 1
+        fi
+        
+        echo "✅ Containers are running"
+        echo ""
+        echo "Verifying API endpoint (checking migrations, seeding, and app startup)..."
+        for i in {1..60}; do
+          if curl -f http://localhost:3000/api-docs 2>/dev/null; then
+            echo "✅ API is responding!"
+            exit 0
+          fi
+          
+          # Check if container is still running every 10 attempts
+          if [ $((i % 10)) -eq 0 ]; then
+            APP_STATUS=$(docker inspect employee_crm_app --format='{{.State.Status}}' 2>/dev/null || echo "not_found")
+            if [ "$APP_STATUS" != "running" ]; then
+              echo "❌ App container stopped running during startup"
+              echo "=== App Logs ==="
+              docker compose -f docker-compose.employee-crm.yml logs app
+              exit 1
+            fi
+          fi
+          
+          echo "⏳ Waiting for API (migrations + seeding + startup)... attempt $i/60"
+          if [ $i -eq 60 ]; then
+            echo "❌ API failed to respond in 5 minutes"
+            echo "=== App Container Status ==="
+            docker compose -f docker-compose.employee-crm.yml ps app
+            echo "=== App Logs (showing migration/seeding/startup) ==="
+            docker compose -f docker-compose.employee-crm.yml logs app
+            echo "=== Database Logs ==="
+            docker compose -f docker-compose.employee-crm.yml logs db
+            exit 1
+          fi
+          sleep 5
+        done
+        
+    - name: Run Employee CRM E2E tests
+      run: npx playwright test tests/employee-crm-api/ --project=chromium
+      env:
+        API_BASE_URL: http://localhost:3000
+        
+    - name: Upload test results
+      uses: actions/upload-artifact@v6
+      if: always()
+      with:
+        name: employee-crm-test-results
+        path: |
+          test-results/
+          playwright-report/
+        retention-days: 30
+        
+    - name: Show Docker logs on failure
+      if: failure()
+      run: |
+        echo "=== App Logs ==="
+        docker compose -f docker-compose.employee-crm.yml logs app
+        echo "=== Database Logs ==="
+        docker compose -f docker-compose.employee-crm.yml logs db
+        
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f docker-compose.employee-crm.yml down -v
