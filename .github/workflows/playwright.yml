@@ -22,7 +22,7 @@ jobs:
       continue-on-error: true 
     - name: Generate Allure Report
       if: always()
-      run: npm run allure-report
+      run: npx allure generate ./allure-results --output ./allure-report
     - uses: actions/upload-artifact@v6
       if: always()
       with:
