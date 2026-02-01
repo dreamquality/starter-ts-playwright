@@ -6,8 +6,8 @@
   "scripts": {
     "clean": "rimraf allure-results && rimraf allure-report && rimraf test-results && rimraf playwright-report && rimraf junit-results",
     "play-report": "npx playwright show-report",
-    "allure-report": "allure generate ./allure-results --clean",
-    "open-report": "npm run allure-report && allure open ./allure-report",
+    "allure-report": "npx allure generate ./allure-results --output ./allure-report",
+    "open-report": "npm run allure-report && npx allure open ./allure-report",
     "firefox": "npm run clean && npx playwright test --project=firefox",
     "chromium": "npx playwright test --project=chromium",
     "webkit": "npx playwright test --project=webkit",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.0",
     "@types/node": "^25.0.10",
-    "allure-commandline": "^2.36.0",
+    "allure": "^3.0.0",
     "allure-playwright": "^3.4.5",
     "playwright": "^1.57.0"
   },
