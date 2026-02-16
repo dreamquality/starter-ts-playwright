@@ -37,6 +37,6 @@
   },
   "dependencies": {
     "dotenv": "^17.2.4",
-    "rimraf": "^6.1.2"
+    "rimraf": "^6.1.3"
   }
 }
