@@ -35,7 +35,15 @@ const config: PlaywrightTestConfig = {
     ['dot'],
     ['line'],
     ['html', { open: 'never' }],
-    ['allure-playwright'],
+    ['allure-playwright', {
+      resultsDir: './allure-results',
+      detail: true,
+      suiteTitle: true,
+      environmentInfo: {
+        os_platform: process.platform,
+        node_version: process.version,
+      },
+    }],
     ['junit', { outputFile: './junit-results/results.xml' }] 
   ],
 
