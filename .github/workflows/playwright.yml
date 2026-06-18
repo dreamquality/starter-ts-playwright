@@ -39,13 +39,23 @@ jobs:
         ref: gh-pages
         path: gh-pages
 
-    - name: Allure Report with history
-      uses: yuvalgabay/allure-v3-report-action@v3.2.2
+    - name: Restore Allure history
       if: always()
-      with:
-        allure_results: allure-results
-        allure_history: allure-history
-        keep_reports: 20
+      run: |
+        if [ -d "gh-pages/history" ]; then
+          mkdir -p allure-results/history
+          cp -r gh-pages/history/. allure-results/history/
+        fi
+
+    - name: Generate Allure Report
+      if: always()
+      run: |
+        if [ -d "allure-results" ] && [ -n "$(find allure-results -type f 2>/dev/null | head -1)" ]; then
+          rm -rf allure-history
+          npx allure generate allure-results --output allure-history --history-limit 20
+        else
+          mkdir -p allure-history
+        fi
 
     - uses: actions/upload-artifact@v7
       if: always()
