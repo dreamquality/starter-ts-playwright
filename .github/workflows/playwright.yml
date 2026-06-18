@@ -20,7 +20,7 @@ jobs:
     - name: Run Playwright tests
       run: npx playwright test
       continue-on-error: true 
-    - uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v7
       if: always()
       with:
         name: playwright-test-results
@@ -47,7 +47,7 @@ jobs:
         allure_history: allure-history
         keep_reports: 20
 
-    - uses: actions/upload-artifact@v6
+    - uses: actions/upload-artifact@v7
       if: always()
       with:
         name: allure-test-results
