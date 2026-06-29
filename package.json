@@ -32,7 +32,7 @@
     "@playwright/test": "^1.61.1",
     "@types/node": "^25.9.3",
     "allure": "^3.13.2",
-    "allure-playwright": "^3.10.0",
+    "allure-playwright": "^3.10.2",
     "playwright": "^1.61.0"
   },
   "dependencies": {
