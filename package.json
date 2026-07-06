@@ -30,7 +30,7 @@
   "license": "CC0",
   "devDependencies": {
     "@playwright/test": "^1.61.1",
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.1.0",
     "allure": "^3.14.1",
     "allure-playwright": "^3.10.2",
     "playwright": "^1.61.0"
